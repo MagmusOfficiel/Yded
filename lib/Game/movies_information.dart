@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_test/google_in.dart';
-import 'package:firebase_test/update_movies_page.dart';
+import 'package:firebase_test/Game/update_movies_page.dart';
+import 'package:firebase_test/Profil/update_profil.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_test/Auth/google_in.dart';
 import 'add_movies_page.dart';
 
 class MoviesInformation extends StatefulWidget {
@@ -16,6 +17,7 @@ class _MoviesInformationState extends State<MoviesInformation> {
   final Stream<QuerySnapshot> _moviesStream =
       FirebaseFirestore.instance.collection('Movies').snapshots();
   final _user = FirebaseAuth.instance.currentUser!;
+
   void addLike(String docID, int likes) {
     var newLikes = likes + 1;
     try {
@@ -29,11 +31,18 @@ class _MoviesInformationState extends State<MoviesInformation> {
 
   @override
   Widget build(BuildContext context) {
-    print(_user);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black87,
         actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (BuildContext context) {
+                  return const UpdateProfil();
+                }));
+              },
+              icon: Icon(Icons.settings)),
           IconButton(
               onPressed: () {
                 GoogleTest().signOut();
@@ -41,7 +50,7 @@ class _MoviesInformationState extends State<MoviesInformation> {
               icon: Icon(Icons.logout))
         ],
         title: Text(
-          'Bienvenue : ${_user.displayName}',
+          _user.displayName!,
           style: TextStyle(fontSize: 14),
         ),
         leading: IconButton(

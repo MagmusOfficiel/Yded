@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_test/utils.dart';
-import 'package:firebase_test/verify_email_page.dart';
+import 'package:firebase_test/Utils/utils.dart';
+import 'package:firebase_test/Profil/verify_email_page.dart';
 import 'package:flutter/material.dart';
-import 'auth_page.dart';
-import 'movies_information.dart';
+import 'Auth/auth_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +22,7 @@ class MyApp extends StatelessWidget {
       scaffoldMessengerKey: Utils.messengerKey,
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      title: 'Fav Movies',
+      title: 'Yded',
       theme: ThemeData.dark(),
       home: MainPage(),
     );

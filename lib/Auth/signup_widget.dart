@@ -1,7 +1,7 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_test/main.dart';
-import 'package:firebase_test/utils.dart';
+import 'package:firebase_test/Utils/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -37,7 +37,6 @@ class _SignUpWidgetState extends State<SignUpWidget> {
           key: formKey,
           child: Column(
             children: [
-
               const SizedBox(height: 40),
               TextFormField(
                 controller: pseudoController,
@@ -112,7 +111,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
        await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text.trim());
-       await FirebaseAuth.instance.currentUser!.updateDisplayName(pseudoController.text.trim()!);
+       await FirebaseAuth.instance.currentUser!.updateDisplayName(pseudoController.text.trim());
     } on FirebaseAuthException catch (e) {
       print(e);
 

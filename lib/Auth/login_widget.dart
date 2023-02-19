@@ -1,12 +1,11 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_test/utils.dart';
+import 'package:firebase_test/Utils/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'forgot_password_page.dart';
+import '../Profil/forgot_password_page.dart';
+import '../main.dart';
 import 'google_in.dart';
-import 'main.dart';
-import 'movies_information.dart';
 
 class LoginWidget extends StatefulWidget {
   final VoidCallback onClickedSignUp;
