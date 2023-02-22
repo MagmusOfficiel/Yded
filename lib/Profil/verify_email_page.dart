@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_test/Game/movies_information.dart';
-import 'package:firebase_test/Utils/utils.dart';
+import 'package:yded/Game/accueil.dart';
+import 'package:yded/Utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class VerifyEmailPage extends StatefulWidget {
@@ -55,7 +55,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
   @override
   Widget build(BuildContext context) => isEmailVerified
-      ? const MoviesInformation()
+      ? const Accueil()
       : Scaffold(
           appBar: AppBar(
             title: Text('Verifiy Email'),

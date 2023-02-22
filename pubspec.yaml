@@ -1,4 +1,4 @@
-name: firebase_test
+name: yded
 description: test firebase
 
 # The following line prevents the package from being accidentally published to
@@ -42,6 +42,7 @@ dependencies:
   google_sign_in: ^5.4.4
   firebase_auth: ^4.2.6
   email_validator: ^2.1.17
+  percent_indicator: ^4.2.2
 
 dev_dependencies:
   flutter_test:

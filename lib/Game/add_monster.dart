@@ -11,7 +11,7 @@ class AddPage extends StatefulWidget {
 
 class _AddPageState extends State<AddPage> {
   final nameController = TextEditingController();
-  final yearController = TextEditingController();
+  final lifeController = TextEditingController();
   final posterController = TextEditingController();
   List<String> categories = [];
 
@@ -19,7 +19,7 @@ class _AddPageState extends State<AddPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add movies'),
+        title: const Text('Ajouter un monstre'),
       ),
       body: Padding(
         padding: EdgeInsets.all(10),
@@ -34,7 +34,7 @@ class _AddPageState extends State<AddPage> {
                   const Text('Nom: '),
                   Expanded(
                       child: TextField(
-                    decoration: InputDecoration(border: InputBorder.none),
+                    decoration: const InputDecoration(border: InputBorder.none),
                     controller: nameController,
                   ))
                 ],
@@ -47,11 +47,12 @@ class _AddPageState extends State<AddPage> {
                   side: const BorderSide(color: Colors.white30, width: 1.5)),
               title: Row(
                 children: [
-                  const Text('Année: '),
+                  const Text('Vie: '),
                   Expanded(
                       child: TextField(
-                    decoration: InputDecoration(border: InputBorder.none),
-                    controller: yearController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(border: InputBorder.none),
+                    controller: lifeController,
                   ))
                 ],
               ),
@@ -63,7 +64,7 @@ class _AddPageState extends State<AddPage> {
                   side: const BorderSide(color: Colors.white30, width: 1.5)),
               title: Row(
                 children: [
-                  const Text('Poster: '),
+                  const Text('Image: '),
                   Expanded(
                       child: TextField(
                     decoration: InputDecoration(border: InputBorder.none),
@@ -72,24 +73,26 @@ class _AddPageState extends State<AddPage> {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
             DropDownMultiSelect(
               onChanged: (List<String> x) {
                 setState(() {
                   categories = x;
                 });
               },
-              options: ['Action', 'Science-fiction', 'Aventure', 'Comédie'],
+              options: ['Feu', 'Eau', 'Terre', 'Air', 'Lumière', 'Ténébre'],
               selectedValues: categories,
-              whenEmpty: 'Catégorie',
+              whenEmpty: 'Éléments',
             ),
+            const SizedBox(height: 20),
             ElevatedButton(
                 onPressed: () {
-                  FirebaseFirestore.instance.collection('Movies').add({
+                  FirebaseFirestore.instance.collection('Monsters').add({
                     'name': nameController.value.text,
-                    'year': yearController.value.text,
+                    'life': int.parse(lifeController.value.text),
                     'poster': posterController.value.text,
                     'categories': categories,
-                    'likes': 0
+                    'dead': false
                   });
                   Navigator.pop(context);
                 },

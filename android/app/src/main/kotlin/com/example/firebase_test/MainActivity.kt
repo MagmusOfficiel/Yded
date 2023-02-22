@@ -1,4 +1,4 @@
-package com.example.firebase_test
+package com.example.yded
 
 import io.flutter.embedding.android.FlutterActivity
 

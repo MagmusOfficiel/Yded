@@ -1,5 +1,5 @@
-import 'package:firebase_test/Auth/login_widget.dart';
-import 'package:firebase_test/Auth/signup_widget.dart';
+import 'package:yded/Auth/login_widget.dart';
+import 'package:yded/Auth/signup_widget.dart';
 import 'package:flutter/material.dart';
 
 class AuthPage extends StatefulWidget{
