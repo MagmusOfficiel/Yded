@@ -22,7 +22,7 @@ class _CombatState extends State<Combat> {
         stream: _monstersStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('Something went wrong'));
+            return const Center(child: Text('Something went wrong'));
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -35,22 +35,27 @@ class _CombatState extends State<Combat> {
               Map<String, dynamic> monstre =
                   document.data()! as Map<String, dynamic>;
               return GestureDetector(
-                  onTap: () => (monstre['dead'] == false) ? Navigator.of(context).push(MaterialPageRoute(
-                        builder: (BuildContext context) {
-                          return UpdatePage(
-                            name: monstre['name'],
-                            dead: monstre['dead'],
-                            life: monstre['life'],
-                            poster: monstre['poster'],
-                            docId: document.id,
-                            categories: monstre['categories'],
-                          );
-                        },
-                      )) : null,
+                  onTap: () => (monstre['dead'] == false)
+                      ? Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) {
+                            return UpdatePage(
+                              name: monstre['name'],
+                              dead: monstre['dead'],
+                              life: monstre['life'],
+                              poster: monstre['poster'],
+                              docId: document.id,
+                              categories: monstre['categories'],
+                            );
+                          },
+                        ))
+                      : null,
                   child: Card(
                     margin: const EdgeInsets.all(10),
-                    color:  (monstre['dead'] == false) ? Colors.black : Colors.black.withOpacity(0.5),
-                    shadowColor:(monstre['dead'] == false) ? Colors.green : Colors.red,
+                    color: (monstre['dead'] == false)
+                        ? Colors.black
+                        : Colors.black.withOpacity(0.5),
+                    shadowColor:
+                        (monstre['dead'] == false) ? Colors.green : Colors.red,
                     elevation: 50,
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
@@ -59,46 +64,68 @@ class _CombatState extends State<Combat> {
                         ListTile(
                           leading: SizedBox(
                             child: (monstre['dead'] == false)
-                                ? Image.network(monstre['poster'])
+                                ? Image.network(monstre['poster'],errorBuilder: (BuildContext context,Object exception,StackTrace? starcktrace){
+                                  return Image.network("https://www.eddy-weber.fr/monstre-inconnu.png");
+                            },)
                                 : Image.network(
                                     "https://www.eddy-weber.fr/mort.gif"),
                           ),
-                          title: (monstre['dead'] == false) ? Text(
-                            '${monstre['name'].toString().toUpperCase()} - VIE : ${monstre['life']}',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic),
-                          ) : Text(
-                            '${monstre['name'].toString().toUpperCase()} - MORT',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic),
-                          ),
-                          subtitle: const Text(
-                            'Niveau de difficulté : Difficile',
+                          trailing:
+                          (monstre['dead'] == true) ? ElevatedButton(
+                            onPressed: () => FirebaseFirestore.instance
+                                .collection("Monsters")
+                                .doc(document.id)
+                                .delete(),
+                            style: const ButtonStyle(
+                                backgroundColor: MaterialStatePropertyAll(
+                                    Colors.transparent)),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.red,
+                            ),
+                          ) : ElevatedButton(
+                            onPressed: () => {},
+                            style: const ButtonStyle(
+                                backgroundColor: MaterialStatePropertyAll(
+                                    Colors.transparent)),
+                            child: const Icon(
+                              Icons.grade,
+                              color: Colors.yellow,
+                            )),
+                          title: (monstre['dead'] == false)
+                              ? Text(
+                                  '${monstre['name'].toString().toUpperCase()} - VIE : ${monstre['life']}',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic),
+                                )
+                              : Text(
+                                  '${monstre['name'].toString().toUpperCase()} - MORT',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic),
+                                ),
+                          subtitle:  Text(
+                            'Niveau : ${getDifficultyLevel(life: monstre['life'])}',
                             textAlign: TextAlign.center,
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(10),
-                          child: Column(
+                          child: Row(
                             children: [
-                              Row(
-                                children: [
-                                  for (final categorie in monstre['categories'])
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 5),
-                                      child: Icon(
-                                        _bgChip(categorie: categorie),
-                                        color: _colorChip(categorie: categorie),
-                                      ),
-                                    ),
-                                ],
-                              ),
+                              for (final categorie in monstre['categories'])
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 5),
+                                  child: Icon(
+                                    _bgChip(categorie: categorie),
+                                    color: _colorChip(categorie: categorie),
+                                  ),
+                                ),
                             ],
                           ),
                         )
@@ -118,7 +145,7 @@ class _CombatState extends State<Combat> {
                           fullscreenDialog: true));
                     },
                     style: const ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                        backgroundColor: MaterialStatePropertyAll(Colors.green)),
                     child: const Icon(Icons.add, color: Colors.white)))
           ]);
         });
@@ -139,6 +166,23 @@ class _CombatState extends State<Combat> {
               0xFF181861,
             ));
     return bgChip;
+  }
+
+  /// Permet de déterminer quel state est appelé.
+  String getDifficultyLevel({required int life}) {
+    String level;
+    if (life <= 500) {
+      level = "Débutant";
+    } else if (life <= 1000) {
+      level = "Survivant";
+    } else if (life <= 5000) {
+      level = "Némésis";
+    } else if (life <= 10000) {
+      level = "Monstrueux";
+    } else {
+      level = "Apocalypse";
+    }
+    return level;
   }
 
   /// Permet de déterminer quel state est appelé.

@@ -171,12 +171,15 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       await FirebaseFirestore.instance.collection('User').add({
         'email': emailController.value.text,
         'name': pseudoController.value.text,
-        'class': "Aventurier",
+        'specialisation': "aventurier",
         'level': 1,
         'money': 0,
         'energy': 50,
         'attack': 1,
-        'percent' : 0
+        'percent' : 0,
+        'points' : 0,
+        'chance' : 1,
+        'role' : "joueur"
       });
     } on FirebaseAuthException catch (e) {
       print(e);

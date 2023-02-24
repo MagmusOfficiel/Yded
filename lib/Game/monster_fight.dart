@@ -62,6 +62,9 @@ class _UpdatePageState extends State<UpdatePage> {
           var money = personnage?.get('money');
           var energy = personnage?.get('energy');
           var percent = personnage?.get('percent').toDouble() ?? 0.0;
+          var attack = personnage?.get('attack');
+          var points = personnage?.get('points');
+          var chance = personnage?.get('chance');
 
           return Scaffold(
             appBar: AppBar(
@@ -118,13 +121,21 @@ class _UpdatePageState extends State<UpdatePage> {
             ),
             body: Stack(
               children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: Image.network(
+                    "https://www.eddy-weber.fr/donjon.png",
+                    fit: BoxFit.cover,
+                  ),
+                ),
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  (widget.dead == false && widget.life != 0)
+                  (widget.dead == false && widget.life >= 1)
                       ? Text(widget._name,
                           style:
                               const TextStyle(fontSize: 35, color: Colors.red))
                       : Text(''),
-                  (widget.dead == false && widget.life != 0)
+                  (widget.dead == false && widget.life >= 1)
                       ? Text('HP: ${widget.life}',
                           style: const TextStyle(fontSize: 35))
                       : const Icon(
@@ -133,18 +144,19 @@ class _UpdatePageState extends State<UpdatePage> {
                         ),
                   const SizedBox(height: 10),
                   Center(
-                    child: (widget.dead == false && widget.life != 0)
+                    child: (widget.dead == false && widget.life >= 1)
                         ? GestureDetector(
                             onTap: () {
                               setState(() {
                                 if (energy == 0) {
                                 } else {
                                   energy--;
-                                  _decreaseLife();
+                                  _decreaseLife(attack: attack);
                                   if (percent >= 0.99) {
                                     percent = 0;
                                     level++;
-                                    money + 10;
+                                    money = money + (10 * chance);
+                                    points++;
                                   } else {
                                     percent = percent + 0.01;
                                   }
@@ -154,7 +166,17 @@ class _UpdatePageState extends State<UpdatePage> {
                               FirebaseFirestore.instance
                                   .collection('User')
                                   .doc(personnage?.id)
+                                  .update({'money': money});
+
+                              FirebaseFirestore.instance
+                                  .collection('User')
+                                  .doc(personnage?.id)
                                   .update({'level': level});
+
+                              FirebaseFirestore.instance
+                                  .collection('User')
+                                  .doc(personnage?.id)
+                                  .update({'points': points});
 
                               FirebaseFirestore.instance
                                   .collection('User')
@@ -166,7 +188,14 @@ class _UpdatePageState extends State<UpdatePage> {
                                   .doc(personnage?.id)
                                   .update({'energy': energy});
                             },
-                            child: Image.network(widget._poster,
+                            child: Image.network(widget._poster, errorBuilder:
+                                    (BuildContext context, Object exception,
+                                        StackTrace? starcktrace) {
+                              return Image.network(
+                                  "https://www.eddy-weber.fr/monstre-inconnu.png",
+                                  fit: BoxFit.cover,
+                                  height: MediaQuery.of(context).size.height / 3);
+                            },
                                 fit: BoxFit.cover,
                                 height: MediaQuery.of(context).size.height / 3),
                           )
@@ -175,14 +204,14 @@ class _UpdatePageState extends State<UpdatePage> {
                             height: MediaQuery.of(context).size.height / 3),
                   ),
                   const SizedBox(height: 50),
-                  (widget.dead == false && widget.life != 0)
+                  (widget.dead == false && widget.life >= 1)
                       ? ElevatedButton.icon(
                           style: const ButtonStyle(
                               backgroundColor:
-                                  MaterialStatePropertyAll(Colors.red)),
+                                  MaterialStatePropertyAll(Colors.black)),
                           onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.arrow_back),
-                          label: const Text("Revenir à l'accueil"),
+                          icon: const Icon(Icons.home),
+                          label: const Text("Sortir"),
                         )
                       : ElevatedButton.icon(
                           style: const ButtonStyle(
@@ -191,7 +220,7 @@ class _UpdatePageState extends State<UpdatePage> {
                           onPressed: () async {
                             Random random = Random();
                             int newMoney = random.nextInt(100) + 1;
-                            money = money + newMoney;
+                            money = money + (newMoney * chance);
 
                             await FirebaseFirestore.instance
                                 .collection('User')
@@ -216,10 +245,10 @@ class _UpdatePageState extends State<UpdatePage> {
         });
   }
 
-  void _decreaseLife() {
-    if (widget.life == 1) {
+  void _decreaseLife({required int attack}) {
+    if (widget.life <= attack) {
       setState(() {
-        widget.life--;
+        widget.life = widget.life - attack;
       });
 
       FirebaseFirestore.instance
@@ -228,7 +257,7 @@ class _UpdatePageState extends State<UpdatePage> {
           .update({'dead': true});
     } else {
       setState(() {
-        widget.life--;
+        widget.life = widget.life - attack;
       });
 
       FirebaseFirestore.instance

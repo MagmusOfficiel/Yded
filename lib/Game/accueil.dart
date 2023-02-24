@@ -7,6 +7,7 @@ import 'package:yded/Game/profil.dart';
 import 'package:yded/Profil/update_profil.dart';
 import 'boutique.dart';
 import 'guilde.dart';
+
 class Accueil extends StatefulWidget {
   const Accueil({Key? key}) : super(key: key);
 
@@ -52,9 +53,11 @@ class _AccueilState extends State<Accueil> {
 
           // Récupère la propriété "level" du personnage
           final level = personnage.get('level');
+          final points = personnage.get('points');
           final money = personnage.get('money');
           var energy = personnage.get('energy');
           var percent = personnage.get('percent').toDouble();
+
           return Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.black87,
@@ -67,14 +70,16 @@ class _AccueilState extends State<Accueil> {
                       ),
                       Text(
                         " : $energy/50",
-                        style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-
                       const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 4)),
                       Text(
                         "Niv. $level",
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 12),
                       ),
                       LinearPercentIndicator(
@@ -84,7 +89,7 @@ class _AccueilState extends State<Accueil> {
                         backgroundColor: Colors.grey,
                         progressColor: Colors.red,
                       ),
-                       Text(
+                      Text(
                         money.toString(),
                         style: TextStyle(fontSize: 12),
                       ),
@@ -99,7 +104,7 @@ class _AccueilState extends State<Accueil> {
                 ],
                 title: Text(
                   _user.displayName!,
-                  style: TextStyle(fontSize: 14),
+                  style: const TextStyle(fontSize: 14),
                 ),
                 leading: CircleAvatar(
                     backgroundColor: Colors.black,
@@ -121,20 +126,24 @@ class _AccueilState extends State<Accueil> {
                     selectedIconTheme:
                         const IconThemeData(color: Colors.red, size: 30),
                     selectedItemColor: Colors.red,
-                    selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
                     currentIndex: _selectedIndex,
                     onTap: _onItemTapped,
                     backgroundColor: Colors.black,
-                    items: const [
-                      BottomNavigationBarItem(
+                    items: [
+                      const BottomNavigationBarItem(
                           icon: Icon(Icons.shopping_bag), label: "Boutique"),
-                      BottomNavigationBarItem(
-                          icon: Icon(Icons.person), label: "Profil"),
-                      BottomNavigationBarItem(
+                      (points <= 0)
+                          ? const BottomNavigationBarItem(
+                              icon: Icon(Icons.person), label: "Profil")
+                          : const BottomNavigationBarItem(
+                              icon: Icon(Icons.person, color: Colors.green),
+                              label: "Profil"),
+                      const BottomNavigationBarItem(
                           icon: Icon(Icons.gamepad), label: "Combat"),
-                      BottomNavigationBarItem(
+                      const BottomNavigationBarItem(
                           icon: Icon(Icons.flag), label: "Guilde"),
-                      BottomNavigationBarItem(
+                      const BottomNavigationBarItem(
                           icon: Icon(Icons.settings), label: "Options"),
                     ],
                   )));

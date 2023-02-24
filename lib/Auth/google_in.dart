@@ -34,11 +34,15 @@ class GoogleTest {
         // Si l'utilisateur n'existe pas, créer une nouvelle collection
         await FirebaseFirestore.instance.collection('User').add({
           'email': email,
-          'class': "Aventurier",
+          'specialisation': "aventurier",
           'level': 1,
           'money': 0,
           'energy': 50,
-          'attack': 1
+          'attack': 1,
+          'percent' : 0,
+          'points' : 0,
+          'chance' : 1,
+          'role' : "joueur"
         });
         navigatorKey.currentState!.popUntil((route) => route.isFirst);
       }

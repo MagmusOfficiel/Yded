@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
 import 'package:yded/Utils/utils.dart';
 import 'package:yded/Profil/verify_email_page.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'Auth/auth_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   await Firebase.initializeApp();
   runApp(const MyApp());
 
