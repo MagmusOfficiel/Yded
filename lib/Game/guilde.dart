@@ -24,7 +24,6 @@ class _GuildeState extends State<Guilde> {
           }
 
           final documents = snapshot.data!.docs;
-
           return GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
@@ -40,6 +39,7 @@ class _GuildeState extends State<Guilde> {
               final level = data['level'];
               final attack = data['attack'];
               final chance = data['chance'];
+              final id = documents[index].id;
               return InkWell(
                 onTap: () {
                   showDialog(
@@ -82,7 +82,15 @@ class _GuildeState extends State<Guilde> {
                         actions: [
                           TextButton(
                               onPressed: () => Navigator.of(context).pop(),
-                              child: const Icon(Icons.close))
+                              child: const Icon(Icons.close)),
+
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              _showEditDialog(data,id);
+                            },
+                            child: const Text('Modifier'),
+                          ),
                         ],
                       );
                     },
@@ -107,5 +115,107 @@ class _GuildeState extends State<Guilde> {
             },
           );
         });
+  }
+  void _showEditDialog(Map<String, dynamic> userData, id) {
+    final TextEditingController nameController = TextEditingController(text: userData['name']);
+    final TextEditingController levelController = TextEditingController(text: userData['level'].toString());
+    final TextEditingController attackController = TextEditingController(text: userData['attack'].toString());
+    final TextEditingController chanceController = TextEditingController(text: userData['chance'].toString());
+    final TextEditingController moneyController = TextEditingController(text: userData['money'].toString());
+    final TextEditingController energyController = TextEditingController(text: userData['energy'].toString());
+    final TextEditingController pointsController = TextEditingController(text: userData['points'].toString());
+    final TextEditingController specialisationController = TextEditingController(text: userData['specialisation'].toString());
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Modifier utilisateur'),
+          content: Column(
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nom',
+                ),
+              ),
+              TextField(
+                controller: levelController,
+                decoration: const InputDecoration(
+                  labelText: 'Niveau',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: moneyController,
+                decoration: const InputDecoration(
+                  labelText: 'Money',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: attackController,
+                decoration: const InputDecoration(
+                  labelText: 'Attaque',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: chanceController,
+                decoration: const InputDecoration(
+                  labelText: 'Chance',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+
+              TextField(
+                controller: pointsController,
+                decoration: const InputDecoration(
+                  labelText: 'Points',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+
+              TextField(
+                controller: energyController,
+                decoration: const InputDecoration(
+                  labelText: 'Energy',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: specialisationController,
+                decoration: const InputDecoration(
+                  labelText: 'Specialisation',
+                ),
+                keyboardType: TextInputType.text,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () {
+                FirebaseFirestore.instance.collection('User').doc(id).update({
+                  'name': nameController.text,
+                  'level': int.parse(levelController.text),
+                  'attack': int.parse(attackController.text),
+                  'chance': int.parse(chanceController.text),
+                  'energy': int.parse(energyController.text),
+                  'points': int.parse(pointsController.text),
+                  'specialisation': int.parse(specialisationController.text),
+                  'money' : int.parse(moneyController.text)
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Enregistrer'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

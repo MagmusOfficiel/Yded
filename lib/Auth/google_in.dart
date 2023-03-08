@@ -21,7 +21,7 @@ class GoogleTest {
         await _auth.signInWithCredential(authCredential);
         final email = googleSignInAccount.email;
         final name = googleSignInAccount.displayName;
-
+        final currentUser = _auth.currentUser;
         // Vérifier si l'utilisateur existe déjà
         final querySnapshot = await FirebaseFirestore.instance
             .collection('User')
@@ -33,7 +33,7 @@ class GoogleTest {
         }
 
         // Si l'utilisateur n'existe pas, créer une nouvelle collection
-        await FirebaseFirestore.instance.collection('User').add({
+        await FirebaseFirestore.instance.collection('User').doc(currentUser?.uid).set({
           'email': email,
           'name' : name,
           'specialisation': "aventurier",

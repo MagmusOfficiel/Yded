@@ -178,7 +178,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
           password: passwordController.text.trim());
       await FirebaseAuth.instance.currentUser!
           .updateDisplayName(pseudoController.text.trim());
-      await FirebaseFirestore.instance.collection('User').add({
+      final currentUser = FirebaseAuth.instance.currentUser;
+      await FirebaseFirestore.instance.collection('User').doc(currentUser?.uid).set({
         'email': emailController.value.text,
         'name': pseudoController.value.text,
         'specialisation': "aventurier",

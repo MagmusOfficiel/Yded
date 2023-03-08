@@ -92,6 +92,12 @@ class _ProfilState extends State<Profil> {
                                                 .update({
                                               'specialisation': 'archer'
                                             });
+                                            FirebaseFirestore.instance
+                                                .collection('User')
+                                                .doc(personnage.id)
+                                                .update({
+                                              'sorts': ['Flèche rapide','Précision','Tir prècis','Triple flèches']
+                                            });
                                           },
                                           child: Container(
                                             height: MediaQuery.of(context)
@@ -128,6 +134,13 @@ class _ProfilState extends State<Profil> {
                                                   .update({
                                                 'specialisation': 'sorcier'
                                               });
+
+                                              FirebaseFirestore.instance
+                                                  .collection('User')
+                                                  .doc(personnage.id)
+                                                  .update({
+                                                'sorts': ['Boule de feu','Concentration','Laser glace','Tonnerre']
+                                              });
                                             },
                                             child: Container(
                                               height: MediaQuery.of(context)
@@ -162,6 +175,13 @@ class _ProfilState extends State<Profil> {
                                                   .doc(personnage.id)
                                                   .update({
                                                 'specialisation': 'guerrier'
+                                              });
+
+                                              FirebaseFirestore.instance
+                                                  .collection('User')
+                                                  .doc(personnage.id)
+                                                  .update({
+                                                'sorts': ['Tranche','Berserk','Coupe sang','Fulgurance']
                                               });
                                             },
                                             child: Container(

@@ -65,34 +65,57 @@ class _CombatState extends State<Combat> {
                         ListTile(
                           leading: SizedBox(
                             child: (monstre['dead'] == false)
-                                ? Image.network(monstre['poster'],errorBuilder: (BuildContext context,Object exception,StackTrace? starcktrace){
-                                  return Image.network("https://www.eddy-weber.fr/monstre-inconnu.png");
-                            },)
+                                ? Image.network(
+                                    monstre['poster'],
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      }
+                                      return CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                      );
+                                    },
+                                    errorBuilder: (BuildContext context,
+                                        Object exception,
+                                        StackTrace? starcktrace) {
+                                      return Image.network(
+                                          "https://www.eddy-weber.fr/monstre-inconnu.png");
+                                    },
+                                  )
                                 : Image.network(
                                     "https://www.eddy-weber.fr/mort.gif"),
                           ),
-                          trailing:
-                          (monstre['dead'] == true) ? ElevatedButton(
-                            onPressed: () => FirebaseFirestore.instance
-                                .collection("Monsters")
-                                .doc(document.id)
-                                .delete(),
-                            style: const ButtonStyle(
-                                backgroundColor: MaterialStatePropertyAll(
-                                    Colors.transparent)),
-                            child: const Icon(
-                              Icons.close,
-                              color: Colors.red,
-                            ),
-                          ) : ElevatedButton(
-                            onPressed: () => {},
-                            style: const ButtonStyle(
-                                backgroundColor: MaterialStatePropertyAll(
-                                    Colors.transparent)),
-                            child: const Icon(
-                              Icons.grade,
-                              color: Colors.yellow,
-                            )),
+                          trailing: (monstre['dead'] == true)
+                              ? ElevatedButton(
+                                  onPressed: () => FirebaseFirestore.instance
+                                      .collection("Monsters")
+                                      .doc(document.id)
+                                      .delete(),
+                                  style: const ButtonStyle(
+                                      backgroundColor: MaterialStatePropertyAll(
+                                          Colors.transparent)),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.red,
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  onPressed: () => {},
+                                  style: const ButtonStyle(
+                                      backgroundColor: MaterialStatePropertyAll(
+                                          Colors.transparent)),
+                                  child: const Icon(
+                                    Icons.grade,
+                                    color: Colors.yellow,
+                                  )),
                           title: (monstre['dead'] == false)
                               ? Text(
                                   '${monstre['name'].toString().toUpperCase()} - VIE : ${monstre['life']}',
@@ -110,7 +133,7 @@ class _CombatState extends State<Combat> {
                                       fontWeight: FontWeight.bold,
                                       fontStyle: FontStyle.italic),
                                 ),
-                          subtitle:  Text(
+                          subtitle: Text(
                             'Niveau : ${getDifficultyLevel(maxLife: monstre['maxLife'])}',
                             textAlign: TextAlign.center,
                           ),
@@ -134,6 +157,7 @@ class _CombatState extends State<Combat> {
                     ),
                   ));
             }).toList()),
+
             Positioned(
                 bottom: MediaQuery.of(context).size.height / 35,
                 right: MediaQuery.of(context).size.width / 2.5,
@@ -146,7 +170,8 @@ class _CombatState extends State<Combat> {
                           fullscreenDialog: true));
                     },
                     style: const ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(Colors.white)),
+                        backgroundColor:
+                            MaterialStatePropertyAll(Colors.white)),
                     child: const Icon(Icons.add, color: Colors.black)))
           ]);
         });

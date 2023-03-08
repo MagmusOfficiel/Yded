@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:yded/Game/combat.dart';
-import 'package:flutter/material.dart';
 import 'package:yded/Game/profil.dart';
 import 'package:yded/Profil/update_profil.dart';
 import 'boutique.dart';
@@ -159,9 +158,9 @@ class _AccueilState extends State<Accueil> {
   /// Permet de déterminer quel state est appelé.
   dynamic _colorSPr({required String specialisation}) {
     Object colorSp = {
-      "archer": Colors.green.withOpacity(0.5),
-      "sorcier": Colors.blue.withOpacity(0.5),
-      "guerrier": Colors.red.withOpacity(0.5),
+      "archer": Colors.green.withOpacity(0.3),
+      "sorcier": Colors.blue.withOpacity(0.3),
+      "guerrier": Colors.red.withOpacity(0.3),
     }.putIfAbsent(
         specialisation,
             () => Colors.black87);

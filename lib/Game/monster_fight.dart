@@ -66,10 +66,10 @@ class _MonsterFightState extends State<MonsterFight> {
           // Récupère les propriétés du personnage
           final name = personnage?.get('name');
           final specialisation = personnage?.get('specialisation');
-          var ultime = personnage?.get('ultime').toDouble() ?? 00;
-          var attack = personnage?.get('attack');
           final chance = personnage?.get('chance');
           final sorts = personnage?.get('sorts');
+          var ultime = personnage?.get('ultime').toDouble() ?? 00;
+          var attack = personnage?.get('attack');
           var level = personnage?.get('level');
           var money = personnage?.get('money');
           var energy = personnage?.get('energy');
@@ -183,21 +183,47 @@ class _MonsterFightState extends State<MonsterFight> {
                       : Icon(Icons.calendar_view_week),
                   const SizedBox(height: 10),
                   Center(
-                    child: (widget.dead == false && widget.life >= 1)
-                        ? Image.network(widget._poster, errorBuilder:
-                                (BuildContext context, Object exception,
-                                    StackTrace? starcktrace) {
-                            return Image.network(
-                                "https://www.eddy-weber.fr/monstre-inconnu.png",
-                                fit: BoxFit.cover,
-                                height: MediaQuery.of(context).size.height / 3);
-                          },
-                            fit: BoxFit.cover,
-                            height: MediaQuery.of(context).size.height / 3)
-                        : Image.network('https://www.eddy-weber.fr/mort.gif',
-                            fit: BoxFit.cover,
-                            height: MediaQuery.of(context).size.height / 3),
-                  ),
+                      child: (widget.dead == false && widget.life >= 1)
+                          ? Image.network(widget._poster, errorBuilder:
+                                  (BuildContext context, Object exception,
+                                      StackTrace? starcktrace) {
+                              return Image.network(
+                                  "https://www.eddy-weber.fr/monstre-inconnu.png",
+                                  fit: BoxFit.cover,
+                                  height:
+                                      MediaQuery.of(context).size.height / 3,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child;
+                                }
+                                return CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                );
+                              });
+                            },
+                              fit: BoxFit.cover,
+                              height: MediaQuery.of(context).size.height / 3)
+                          : Image.network('https://www.eddy-weber.fr/mort.gif',
+                              fit: BoxFit.cover,
+                              height: MediaQuery.of(context).size.height / 3,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              }
+                              return CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              );
+                            })),
                   const SizedBox(height: 50),
                   (widget.dead == false && widget.life >= 1)
                       ? Column(children: [
@@ -210,13 +236,16 @@ class _MonsterFightState extends State<MonsterFight> {
                                 child: ElevatedButton(
                                   style: ButtonStyle(
                                     elevation: MaterialStateProperty.all(50),
+                                    side: MaterialStatePropertyAll(BorderSide(
+                                        color: _colorSPr(
+                                            specialisation: specialisation),
+                                        width: 2)),
                                     shape: MaterialStateProperty.all(
                                         RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(20.0))),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        _colorSPr(
-                                            specialisation: specialisation)),
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.black),
                                   ),
                                   onPressed: () {
                                     _attackBoss(
@@ -230,7 +259,12 @@ class _MonsterFightState extends State<MonsterFight> {
                                         chance: chance,
                                         personnage: personnage);
                                   },
-                                  child: Text(sorts[0]),
+                                  child: Text(
+                                    sorts[0],
+                                    style: TextStyle(
+                                        color: _colorSPr(
+                                            specialisation: specialisation)),
+                                  ),
                                 ),
                               ),
                               SizedBox(
@@ -239,13 +273,16 @@ class _MonsterFightState extends State<MonsterFight> {
                                 child: ElevatedButton(
                                   style: ButtonStyle(
                                     elevation: MaterialStateProperty.all(50),
+                                    side: MaterialStatePropertyAll(BorderSide(
+                                        color: _colorSPr(
+                                            specialisation: specialisation),
+                                        width: 2)),
                                     shape: MaterialStateProperty.all(
                                         RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(20.0))),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        _colorSPr(
-                                            specialisation: specialisation)),
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.black),
                                   ),
                                   onPressed: () {
                                     _attackBoss(
@@ -259,7 +296,12 @@ class _MonsterFightState extends State<MonsterFight> {
                                         chance: chance,
                                         personnage: personnage);
                                   },
-                                  child: Text(sorts[1]),
+                                  child: Text(
+                                    sorts[1],
+                                    style: TextStyle(
+                                        color: _colorSPr(
+                                            specialisation: specialisation)),
+                                  ),
                                 ),
                               ),
                             ],
@@ -281,6 +323,7 @@ class _MonsterFightState extends State<MonsterFight> {
                               }
                             },
                             child: CircularPercentIndicator(
+                              backgroundColor: Colors.black,
                               radius: 30.0,
                               lineWidth: 30.0,
                               percent: ultime,
@@ -302,13 +345,17 @@ class _MonsterFightState extends State<MonsterFight> {
                                   child: ElevatedButton(
                                     style: ButtonStyle(
                                       elevation: MaterialStateProperty.all(50),
+                                      side: MaterialStatePropertyAll(BorderSide(
+                                          color: _colorSPr(
+                                              specialisation: specialisation),
+                                          width: 2)),
                                       shape: MaterialStateProperty.all(
                                           RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(20.0))),
                                       backgroundColor:
-                                          MaterialStateProperty.all(_colorSPr(
-                                              specialisation: specialisation)),
+                                          MaterialStateProperty.all(
+                                              Colors.black),
                                     ),
                                     onPressed: () {
                                       _attackBoss(
@@ -322,7 +369,12 @@ class _MonsterFightState extends State<MonsterFight> {
                                           chance: chance,
                                           personnage: personnage);
                                     },
-                                    child: Text(sorts[2]),
+                                    child: Text(
+                                      sorts[2],
+                                      style: TextStyle(
+                                          color: _colorSPr(
+                                              specialisation: specialisation)),
+                                    ),
                                   ),
                                 ),
                                 SizedBox(
@@ -332,13 +384,17 @@ class _MonsterFightState extends State<MonsterFight> {
                                   child: ElevatedButton(
                                     style: ButtonStyle(
                                       elevation: MaterialStateProperty.all(50),
+                                      side: MaterialStatePropertyAll(BorderSide(
+                                          color: _colorSPr(
+                                              specialisation: specialisation),
+                                          width: 2)),
                                       shape: MaterialStateProperty.all(
                                           RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(20.0))),
                                       backgroundColor:
-                                          MaterialStateProperty.all(_colorSPr(
-                                              specialisation: specialisation)),
+                                          MaterialStateProperty.all(
+                                              Colors.black),
                                     ),
                                     onPressed: () {
                                       _attackBoss(
@@ -352,7 +408,12 @@ class _MonsterFightState extends State<MonsterFight> {
                                           chance: chance,
                                           personnage: personnage);
                                     },
-                                    child: Text(sorts[2]),
+                                    child: Text(
+                                      sorts[3],
+                                      style: TextStyle(
+                                          color: _colorSPr(
+                                              specialisation: specialisation)),
+                                    ),
                                   ),
                                 )
                               ]),
@@ -451,35 +512,14 @@ class _MonsterFightState extends State<MonsterFight> {
         }
       }
 
-      FirebaseFirestore.instance
-          .collection('User')
-          .doc(personnage?.id)
-          .update({'money': money});
-
-      FirebaseFirestore.instance
-          .collection('User')
-          .doc(personnage?.id)
-          .update({'ultime': ultime});
-
-      FirebaseFirestore.instance
-          .collection('User')
-          .doc(personnage?.id)
-          .update({'level': level});
-
-      FirebaseFirestore.instance
-          .collection('User')
-          .doc(personnage?.id)
-          .update({'points': points});
-
-      FirebaseFirestore.instance
-          .collection('User')
-          .doc(personnage?.id)
-          .update({'percent': percent});
-
-      FirebaseFirestore.instance
-          .collection('User')
-          .doc(personnage?.id)
-          .update({'energy': energy});
+      FirebaseFirestore.instance.collection('User').doc(personnage?.id).update({
+        'money': money,
+        'ultime': ultime,
+        'level': level,
+        'points': points,
+        'percent': percent,
+        'energy': energy
+      });
     });
   }
 
@@ -489,7 +529,7 @@ class _MonsterFightState extends State<MonsterFight> {
       "archer": Colors.green.withOpacity(0.5),
       "sorcier": Colors.blue.withOpacity(0.5),
       "guerrier": Colors.red.withOpacity(0.5),
-    }.putIfAbsent(specialisation, () => Colors.black87);
+    }.putIfAbsent(specialisation, () => Colors.white24);
     return colorSp;
   }
 
