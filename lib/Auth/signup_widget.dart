@@ -38,18 +38,27 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         child: Image.network(
-          (isSelected == true)
-              ? 'https://www.eddy-weber.fr/YddeF.gif'
-              : 'https://www.eddy-weber.fr/Ydde.gif',
-          fit: BoxFit.cover,
-        ),
+            (isSelected == true)
+                ? 'https://www.eddy-weber.fr/YddeF.gif'
+                : 'https://www.eddy-weber.fr/Ydde.gif',
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) {
+            return child;
+          }
+          return CircularProgressIndicator(
+            value: loadingProgress.expectedTotalBytes != null
+                ? loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!
+                : null,
+          );
+        }),
       ),
       Form(
         key: formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
             const Padding(padding: EdgeInsets.only(top: 20)),
             ElevatedButton(
                 onPressed: () {
@@ -62,21 +71,21 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                         ? const MaterialStatePropertyAll(Colors.purpleAccent)
                         : const MaterialStatePropertyAll(Colors.indigo)),
                 child: const Icon(
-                   Icons.switch_access_shortcut,
+                  Icons.switch_access_shortcut,
                   size: 20,
                 )),
             const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.only(right: 40, left: 40),child :
-            TextFormField(
-              controller: pseudoController,
-              cursorColor: Colors.white,
-              textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(labelText: 'Pseudo'),
-              validator: (value) => value != null && value.isEmpty
-                  ? 'Le pseudo ne peux pas être vide'
-                  : null,
-            )),
+            Padding(
+                padding: const EdgeInsets.only(right: 40, left: 40),
+                child: TextFormField(
+                  controller: pseudoController,
+                  cursorColor: Colors.white,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(labelText: 'Pseudo'),
+                  validator: (value) => value != null && value.isEmpty
+                      ? 'Le pseudo ne peux pas être vide'
+                      : null,
+                )),
             const SizedBox(height: 4),
             Padding(
                 padding: const EdgeInsets.only(right: 40, left: 40),
@@ -89,14 +98,14 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide:
-                        const BorderSide(color: Colors.blue, width: 2.0),
+                            const BorderSide(color: Colors.blue, width: 2.0),
                       ),
                       labelText: 'Email'),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (email) =>
-                  email != null && !EmailValidator.validate(email)
-                      ? 'Entrer un email valide'
-                      : null,
+                      email != null && !EmailValidator.validate(email)
+                          ? 'Entrer un email valide'
+                          : null,
                 )),
             const SizedBox(height: 4),
             Padding(
@@ -109,7 +118,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide:
-                        const BorderSide(color: Colors.blue, width: 2.0),
+                            const BorderSide(color: Colors.blue, width: 2.0),
                       ),
                       labelText: 'Mot de passe'),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -123,11 +132,12 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                 child: ElevatedButton.icon(
                   onPressed: signUp,
                   icon: const Icon(Icons.play_arrow, size: 32),
-                  label: const Text('Inscription', style: TextStyle(fontSize: 20)),
+                  label:
+                      const Text('Inscription', style: TextStyle(fontSize: 20)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: (isSelected == true)
-                        ? Colors.purpleAccent
-                        : Colors.indigo,
+                      backgroundColor: (isSelected == true)
+                          ? Colors.purpleAccent
+                          : Colors.indigo,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0)),
                       minimumSize: const Size.fromHeight(40)),
@@ -176,10 +186,12 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         'money': 0,
         'energy': 50,
         'attack': 1,
-        'percent' : 0,
-        'points' : 0,
-        'chance' : 1,
-        'role' : "joueur"
+        'percent': 0,
+        'points': 0,
+        'chance': 1,
+        'ultime': 0,
+        'sorts': ["Coup de poing", "Rage", "Jet d'eau", "Lance pierre"],
+        'role': "joueur"
       });
     } on FirebaseAuthException catch (e) {
       print(e);

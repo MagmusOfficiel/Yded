@@ -43,24 +43,166 @@ class _ProfilState extends State<Profil> {
           var chance = personnage.get('chance');
           var energy = personnage.get('energy');
           var level = personnage.get('level');
-          var specialisation = personnage.get('specialisation');
 
           return Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Column(
-                children: [
-                  (level == 10) ?
-                  Text("Disponible à partir du Nv.10".toUpperCase(),style: TextStyle(),): Text("Disponible".toUpperCase(),style: TextStyle(),),
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    label: Text("SPÉCIALISATION"),
-                    icon: const Icon(Icons.stacked_line_chart_rounded),
-                    style: const ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(Colors.indigo)),
-                  ),
-                ],
-              ),
+              Column(children: [
+                (level < 10)
+                    ? Text(
+                        "Disponible à partir du Nv.10".toUpperCase(),
+                        style: TextStyle(),
+                      )
+                    : Text(
+                        "Disponible".toUpperCase(),
+                        style: const TextStyle(),
+                      ),
+                (level < 10)
+                    ? ElevatedButton.icon(
+                        onPressed: () {},
+                        label: const Text("SPÉCIALISATION"),
+                        icon: const Icon(Icons.stacked_line_chart_rounded),
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStatePropertyAll(
+                                Colors.indigo.withOpacity(0.1))),
+                      )
+                    : ElevatedButton.icon(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'Choisissez une spécialisation',
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        const SizedBox(width: 15),
+                                        GestureDetector(
+                                          onTap: () {
+                                            FirebaseFirestore.instance
+                                                .collection('User')
+                                                .doc(personnage.id)
+                                                .update({
+                                              'specialisation': 'archer'
+                                            });
+                                          },
+                                          child: Container(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                3,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                3.5,
+                                            color: Colors.black,
+                                            child: Card(
+                                              shadowColor: Colors.green,
+                                              elevation: 30,
+                                              color:
+                                                  Colors.green.withOpacity(0.5),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: const [
+                                                  Text("Archer"),
+                                                  Icon(Icons.eco)
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        GestureDetector(
+                                            onTap: () {
+                                              FirebaseFirestore.instance
+                                                  .collection('User')
+                                                  .doc(personnage.id)
+                                                  .update({
+                                                'specialisation': 'sorcier'
+                                              });
+                                            },
+                                            child: Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  3,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  3.5,
+                                              color: Colors.black,
+                                              child: Card(
+                                                shadowColor: Colors.blue,
+                                                elevation: 30,
+                                                color: Colors.blue
+                                                    .withOpacity(0.5),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: const [
+                                                    Text("Sorcier"),
+                                                    Icon(Icons.ac_unit_rounded)
+                                                  ],
+                                                ),
+                                              ),
+                                            )),
+                                        const SizedBox(width: 10),
+                                        GestureDetector(
+                                            onTap: () {
+                                              FirebaseFirestore.instance
+                                                  .collection('User')
+                                                  .doc(personnage.id)
+                                                  .update({
+                                                'specialisation': 'guerrier'
+                                              });
+                                            },
+                                            child: Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  3,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  3.5,
+                                              color: Colors.black,
+                                              child: Card(
+                                                shadowColor: Colors.red,
+                                                elevation: 30,
+                                                color:
+                                                    Colors.red.withOpacity(0.5),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: const [
+                                                    Text("Guerrier"),
+                                                    Icon(Icons.balcony_sharp)
+                                                  ],
+                                                ),
+                                              ),
+                                            )),
+                                      ],
+                                    )
+                                  ]);
+                            },
+                          );
+                        },
+                        label: const Text("SPÉCIALISATION"),
+                        icon: const Icon(Icons.stacked_line_chart_rounded),
+                        style: const ButtonStyle(
+                          backgroundColor:
+                              MaterialStatePropertyAll(Colors.indigo),
+                        ),
+                      )
+              ]),
               const SizedBox(height: 16.0),
               Text(
                 'Nombre de points à attribué : $points',

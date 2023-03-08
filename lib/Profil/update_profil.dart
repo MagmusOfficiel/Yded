@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:yded/Utils/utils.dart';
@@ -51,11 +52,11 @@ class _UpdateProfilState extends State<UpdateProfil> {
                       borderSide:
                           const BorderSide(color: Colors.blue, width: 2.0),
                     ),
-                    labelText: 'Email'),
+                    labelText: 'Pseudo'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (email) =>
-                    email != null && !EmailValidator.validate(email)
-                        ? 'Entrer un email valide'
+                validator: (pseudo) =>
+                pseudo == null
+                        ? 'Entrer un pseudo valide'
                         : null,
               )),
           Padding(
@@ -122,6 +123,16 @@ class _UpdateProfilState extends State<UpdateProfil> {
           .updateEmail(emailController.text.trim());
       await FirebaseAuth.instance.currentUser!
           .updateDisplayName(pseudoController.text.trim());
+      if (FirebaseAuth.instance.currentUser != null) {
+        final user = FirebaseAuth.instance.currentUser!;
+        final personnageSnapshot = await FirebaseFirestore.instance
+            .collection('User')
+            .where('email', isEqualTo: user.email)
+            .get();
+        final personnageDoc = personnageSnapshot.docs.first;
+        await personnageDoc.reference.update({'name': pseudoController.text.trim()});
+      }
+
 
       Utils.showSnackBar('Votre profil a été modifier !', true);
       Navigator.of(context).popUntil((route) => route.isFirst);

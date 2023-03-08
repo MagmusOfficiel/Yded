@@ -38,7 +38,8 @@ class _CombatState extends State<Combat> {
                   onTap: () => (monstre['dead'] == false)
                       ? Navigator.of(context).push(MaterialPageRoute(
                           builder: (BuildContext context) {
-                            return UpdatePage(
+                            return MonsterFight(
+                              maxLife: monstre['maxLife'],
                               name: monstre['name'],
                               dead: monstre['dead'],
                               life: monstre['life'],
@@ -110,7 +111,7 @@ class _CombatState extends State<Combat> {
                                       fontStyle: FontStyle.italic),
                                 ),
                           subtitle:  Text(
-                            'Niveau : ${getDifficultyLevel(life: monstre['life'])}',
+                            'Niveau : ${getDifficultyLevel(maxLife: monstre['maxLife'])}',
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -145,8 +146,8 @@ class _CombatState extends State<Combat> {
                           fullscreenDialog: true));
                     },
                     style: const ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(Colors.green)),
-                    child: const Icon(Icons.add, color: Colors.white)))
+                        backgroundColor: MaterialStatePropertyAll(Colors.white)),
+                    child: const Icon(Icons.add, color: Colors.black)))
           ]);
         });
   }
@@ -169,15 +170,15 @@ class _CombatState extends State<Combat> {
   }
 
   /// Permet de déterminer quel state est appelé.
-  String getDifficultyLevel({required int life}) {
+  String getDifficultyLevel({required int maxLife}) {
     String level;
-    if (life <= 500) {
+    if (maxLife <= 500) {
       level = "Débutant";
-    } else if (life <= 1000) {
+    } else if (maxLife <= 1000) {
       level = "Survivant";
-    } else if (life <= 5000) {
+    } else if (maxLife <= 5000) {
       level = "Némésis";
-    } else if (life <= 10000) {
+    } else if (maxLife <= 10000) {
       level = "Monstrueux";
     } else {
       level = "Apocalypse";

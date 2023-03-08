@@ -52,7 +52,6 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
       Utils.showSnackBar(e.toString());
     }
   }
-
   @override
   Widget build(BuildContext context) => isEmailVerified
       ? const Accueil()

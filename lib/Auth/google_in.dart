@@ -20,6 +20,7 @@ class GoogleTest {
             idToken: googleSignInAuthentication.idToken);
         await _auth.signInWithCredential(authCredential);
         final email = googleSignInAccount.email;
+        final name = googleSignInAccount.displayName;
 
         // Vérifier si l'utilisateur existe déjà
         final querySnapshot = await FirebaseFirestore.instance
@@ -34,6 +35,7 @@ class GoogleTest {
         // Si l'utilisateur n'existe pas, créer une nouvelle collection
         await FirebaseFirestore.instance.collection('User').add({
           'email': email,
+          'name' : name,
           'specialisation': "aventurier",
           'level': 1,
           'money': 0,
@@ -42,6 +44,8 @@ class GoogleTest {
           'percent' : 0,
           'points' : 0,
           'chance' : 1,
+          'ultime' : 0,
+          'sorts' : ["Coup de poing","Rage","Jet d'eau","Lance pierre"],
           'role' : "joueur"
         });
         navigatorKey.currentState!.popUntil((route) => route.isFirst);

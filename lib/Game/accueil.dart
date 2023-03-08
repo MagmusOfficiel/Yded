@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:yded/Game/combat.dart';
 import 'package:flutter/material.dart';
@@ -54,13 +55,16 @@ class _AccueilState extends State<Accueil> {
           // Récupère la propriété "level" du personnage
           final level = personnage.get('level');
           final points = personnage.get('points');
+          final name = personnage.get('name');
           final money = personnage.get('money');
+          final specialisation = personnage.get('specialisation');
           var energy = personnage.get('energy');
           var percent = personnage.get('percent').toDouble();
 
           return Scaffold(
+            backgroundColor: Colors.black45,
               appBar: AppBar(
-                backgroundColor: Colors.black87,
+                backgroundColor: _colorSPr(specialisation: specialisation),
                 actions: [
                   Row(
                     children: [
@@ -103,13 +107,13 @@ class _AccueilState extends State<Accueil> {
                   ),
                 ],
                 title: Text(
-                  _user.displayName!,
+                  name,
                   style: const TextStyle(fontSize: 14),
                 ),
                 leading: CircleAvatar(
-                    backgroundColor: Colors.black,
+                    backgroundColor: Colors.transparent,
                     child: Image.network(
-                        'https://www.eddy-weber.fr/aventuriers.png',
+                        'https://www.eddy-weber.fr/$specialisation.png',
                         fit: BoxFit.cover)),
               ),
               body: Center(
@@ -124,12 +128,12 @@ class _AccueilState extends State<Accueil> {
                     type: BottomNavigationBarType.fixed,
                     selectedFontSize: 15,
                     selectedIconTheme:
-                        const IconThemeData(color: Colors.red, size: 30),
-                    selectedItemColor: Colors.red,
+                         IconThemeData(color: Colors.white, size: 30),
+                    selectedItemColor: Colors.white,
                     selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
                     currentIndex: _selectedIndex,
                     onTap: _onItemTapped,
-                    backgroundColor: Colors.black,
+                    backgroundColor: _colorSPr(specialisation: specialisation),
                     items: [
                       const BottomNavigationBarItem(
                           icon: Icon(Icons.shopping_bag), label: "Boutique"),
@@ -149,6 +153,21 @@ class _AccueilState extends State<Accueil> {
                   )));
         });
   }
+
+
+
+  /// Permet de déterminer quel state est appelé.
+  dynamic _colorSPr({required String specialisation}) {
+    Object colorSp = {
+      "archer": Colors.green.withOpacity(0.5),
+      "sorcier": Colors.blue.withOpacity(0.5),
+      "guerrier": Colors.red.withOpacity(0.5),
+    }.putIfAbsent(
+        specialisation,
+            () => Colors.black87);
+    return colorSp;
+  }
+
 
   void _onItemTapped(int index) {
     setState(() {

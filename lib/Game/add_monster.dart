@@ -88,6 +88,7 @@ class _AddPageState extends State<AddPage> {
             ElevatedButton(
                 onPressed: () {
                   FirebaseFirestore.instance.collection('Monsters').add({
+                    'maxLife' : int.parse(lifeController.value.text),
                     'name': nameController.value.text,
                     'life': int.parse(lifeController.value.text),
                     'poster': posterController.value.text,
