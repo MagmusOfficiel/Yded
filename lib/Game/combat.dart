@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:yded/Game/monster_fight.dart';
 import 'add_monster.dart';
@@ -15,6 +16,27 @@ class _CombatState extends State<Combat> {
       .collection('Monsters')
       .orderBy('life', descending: true)
       .snapshots();
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final User? user = FirebaseAuth.instance.currentUser;
+  late String userRole = '';
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  Future<void> getData() async {
+    final docRef = FirebaseFirestore.instance.collection('User').doc(user?.uid);
+    final docSnapshot = await docRef.get();
+    final userData = docSnapshot.data();
+    if (userData != null) {
+      setState(() {
+        userRole = userData['role'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,21 +116,27 @@ class _CombatState extends State<Combat> {
                                     "https://www.eddy-weber.fr/mort.gif"),
                           ),
                           trailing: (monstre['dead'] == true)
-                              ? ElevatedButton(
-                                  onPressed: () => FirebaseFirestore.instance
-                                      .collection("Monsters")
-                                      .doc(document.id)
-                                      .delete(),
-                                  style: const ButtonStyle(
-                                      backgroundColor: MaterialStatePropertyAll(
-                                          Colors.transparent)),
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: Colors.red,
-                                  ),
-                                )
+                              ? (userRole == "admin")
+                                  ? ElevatedButton(
+                                      onPressed: () =>
+                                          _showEditDialog(monstre, document.id),
+                                      style: const ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStatePropertyAll(
+                                                  Colors.transparent)),
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.red,
+                                      ),
+                                    )
+                                  : SizedBox()
                               : ElevatedButton(
-                                  onPressed: () => {},
+                                  onPressed: () => {
+                                        (userRole == 'admin')
+                                            ? _showEditDialog(
+                                                monstre, document.id)
+                                            : null
+                                      },
                                   style: const ButtonStyle(
                                       backgroundColor: MaterialStatePropertyAll(
                                           Colors.transparent)),
@@ -157,22 +185,23 @@ class _CombatState extends State<Combat> {
                     ),
                   ));
             }).toList()),
-
-            Positioned(
-                bottom: MediaQuery.of(context).size.height / 35,
-                right: MediaQuery.of(context).size.width / 2.5,
-                child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (BuildContext context) {
-                            return const AddPage();
-                          },
-                          fullscreenDialog: true));
-                    },
-                    style: const ButtonStyle(
-                        backgroundColor:
-                            MaterialStatePropertyAll(Colors.white)),
-                    child: const Icon(Icons.add, color: Colors.black)))
+            (userRole == "admin")
+                ? Positioned(
+                    bottom: MediaQuery.of(context).size.height / 35,
+                    right: MediaQuery.of(context).size.width / 2.5,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (BuildContext context) {
+                                return const AddPage();
+                              },
+                              fullscreenDialog: true));
+                        },
+                        style: const ButtonStyle(
+                            backgroundColor:
+                                MaterialStatePropertyAll(Colors.white)),
+                        child: const Icon(Icons.add, color: Colors.black)))
+                : SizedBox()
           ]);
         });
   }
@@ -229,5 +258,110 @@ class _CombatState extends State<Combat> {
               },
             ));
     return colorChip;
+  }
+
+  void _showEditDialog(Map<String, dynamic> userData, id) {
+    final TextEditingController nameController =
+        TextEditingController(text: userData['name']);
+    bool mortController = userData['dead'] ?? true;
+    final TextEditingController lifeController =
+        TextEditingController(text: userData['life'].toString());
+    final TextEditingController maxLifeController =
+        TextEditingController(text: userData['maxLife'].toString());
+    final TextEditingController imageController =
+        TextEditingController(text: userData['poster'].toString());
+    final TextEditingController categoriesController =
+        TextEditingController(text: userData['categories'].join(', '));
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Modifier utilisateur'),
+          content: Column(
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nom',
+                ),
+              ),
+              Switch(
+                value: mortController,
+                onChanged: (newValue) {
+                  setState(() {
+                    mortController = newValue;
+                  });
+                },
+                activeTrackColor: Colors.lightGreenAccent,
+                activeColor: Colors.green,
+              ),
+              TextField(
+                controller: imageController,
+                decoration: const InputDecoration(
+                  labelText: 'Image',
+                ),
+                keyboardType: TextInputType.text,
+              ),
+              TextField(
+                controller: lifeController,
+                decoration: const InputDecoration(
+                  labelText: 'Vie',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: maxLifeController,
+                decoration: const InputDecoration(
+                  labelText: 'Vie max',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: categoriesController,
+                decoration: const InputDecoration(
+                  labelText: 'Categories',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () {
+                FirebaseFirestore.instance
+                    .collection('Monsters')
+                    .doc(id)
+                    .update({
+                  'name': nameController.text,
+                  'dead': mortController,
+                  'life': int.parse(lifeController.text),
+                  'maxLife': int.parse(maxLifeController.text),
+                  'poster': imageController.text,
+                  'categories': categoriesController.text.split(', ')
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Enregistrer'),
+            ),
+
+            TextButton(
+              onPressed: () {
+                FirebaseFirestore.instance
+                    .collection("Monsters")
+                    .doc(id)
+                    .delete();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Supprimer'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
