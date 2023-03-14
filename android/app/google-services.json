@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "490474567720",
+    "firebase_url": "https://yded-173f6-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "yded-173f6",
     "storage_bucket": "yded-173f6.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "490474567720-okglm1bdp8nq31gejta3hfshuo2jv0kt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.yded",
+            "certificate_hash": "c59711a4589028f4c701f59e088ca6ad695bcc9f"
+          }
+        },
         {
           "client_id": "490474567720-pp75ujkoi74tpuv4llliotv96857ole1.apps.googleusercontent.com",
           "client_type": 1,
@@ -37,6 +46,13 @@
             {
               "client_id": "490474567720-7lv73ocsfmil1c97taloilud5v469o3p.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "490474567720-tca3829avhfgg8v4mug9sge9mun7594l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.yded"
+              }
             }
           ]
         }

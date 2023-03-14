@@ -36,14 +36,22 @@ class GoogleTest {
         await FirebaseFirestore.instance.collection('User').doc(currentUser?.uid).set({
           'email': email,
           'name' : name,
+          'energy': 50,
+          'stats': {
+            'attaque': 1,
+            'chance': 1,
+            'feu': 0,
+            'eau': 0,
+            'terre': 0,
+            'air': 0,
+            'lumière': 0,
+            'ténébre': 0
+          },
           'specialisation': "aventurier",
           'level': 1,
           'money': 0,
-          'energy': 50,
-          'attack': 1,
           'percent' : 0,
           'points' : 0,
-          'chance' : 1,
           'ultime' : 0,
           'sorts' : ["Coup de poing","Rage","Jet d'eau","Lance pierre"],
           'role' : "joueur"

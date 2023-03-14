@@ -66,13 +66,12 @@ class _MonsterFightState extends State<MonsterFight> {
           // Récupère les propriétés du personnage
           final name = personnage?.get('name');
           final specialisation = personnage?.get('specialisation');
-          final chance = personnage?.get('chance');
           final sorts = personnage?.get('sorts');
           var ultime = personnage?.get('ultime').toDouble() ?? 00;
-          var attack = personnage?.get('attack');
+          final stats = personnage?.get('stats');
+          var energy = personnage?.get('energy');
           var level = personnage?.get('level');
           var money = personnage?.get('money');
-          var energy = personnage?.get('energy');
           var percent = personnage?.get('percent').toDouble() ?? 0.0;
           var points = personnage?.get('points');
           return Scaffold(
@@ -86,7 +85,7 @@ class _MonsterFightState extends State<MonsterFight> {
                       size: 12,
                     ),
                     Text(
-                      " : $energy/50",
+                      " : ${energy}/50",
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -252,11 +251,11 @@ class _MonsterFightState extends State<MonsterFight> {
                                         energy: energy,
                                         ultime: ultime,
                                         percent: percent,
-                                        attack: attack,
+                                        attack: stats['attaque'],
                                         level: level,
                                         money: money,
                                         points: points,
-                                        chance: chance,
+                                        chance: stats['chance'],
                                         personnage: personnage);
                                   },
                                   child: Text(
@@ -289,11 +288,11 @@ class _MonsterFightState extends State<MonsterFight> {
                                         energy: energy,
                                         ultime: ultime,
                                         percent: percent,
-                                        attack: attack,
+                                        attack: stats['attaque'],
                                         level: level,
                                         money: money,
                                         points: points,
-                                        chance: chance,
+                                        chance: stats['chance'],
                                         personnage: personnage);
                                   },
                                   child: Text(
@@ -313,11 +312,11 @@ class _MonsterFightState extends State<MonsterFight> {
                                     energy: energy,
                                     ultime: ultime,
                                     percent: percent,
-                                    attack: attack = attack * 2,
+                                    attack: stats['attaque'],
                                     level: level,
                                     money: money,
                                     points: points,
-                                    chance: chance,
+                                    chance: stats['chance'],
                                     personnage: personnage,
                                     critique: true);
                               }
@@ -362,11 +361,11 @@ class _MonsterFightState extends State<MonsterFight> {
                                           energy: energy,
                                           ultime: ultime,
                                           percent: percent,
-                                          attack: attack,
+                                          attack: stats['attaque'],
                                           level: level,
                                           money: money,
                                           points: points,
-                                          chance: chance,
+                                          chance: stats['chance'],
                                           personnage: personnage);
                                     },
                                     child: Text(
@@ -401,11 +400,11 @@ class _MonsterFightState extends State<MonsterFight> {
                                           energy: energy,
                                           ultime: ultime,
                                           percent: percent,
-                                          attack: attack,
+                                          attack: stats['attaque'],
                                           level: level,
                                           money: money,
                                           points: points,
-                                          chance: chance,
+                                          chance: stats['chance'],
                                           personnage: personnage);
                                     },
                                     child: Text(
@@ -436,7 +435,7 @@ class _MonsterFightState extends State<MonsterFight> {
                           onPressed: () async {
                             Random random = Random();
                             int newMoney = random.nextInt(100) + 1;
-                            money = money + (newMoney * chance);
+                            money = money + (newMoney * stats['chance']);
 
                             await FirebaseFirestore.instance
                                 .collection('User')
@@ -463,7 +462,7 @@ class _MonsterFightState extends State<MonsterFight> {
                       duration: Duration(milliseconds: 500),
                       curve: Curves.easeInOut,
                       child: Text(
-                        '-$attack',
+                        '-${stats['attaque']}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 30,
@@ -518,7 +517,7 @@ class _MonsterFightState extends State<MonsterFight> {
         'level': level,
         'points': points,
         'percent': percent,
-        'energy': energy
+        'energy' : energy
       });
     });
   }

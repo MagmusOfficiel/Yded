@@ -72,7 +72,7 @@ class _AccueilState extends State<Accueil> {
                         size: 12,
                       ),
                       Text(
-                        " : $energy/50",
+                        " : ${energy}/50",
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,

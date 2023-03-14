@@ -59,9 +59,10 @@ class _GuildeState extends State<Guilde> {
               final name = data['name'] ?? 'Inconnu';
               final specialisation = data['specialisation'];
               final level = data['level'];
-              final attack = data['attack'];
-              final chance = data['chance'];
+              final attack = data['stats']['attaque'];
+              final chance = data['stats']['chance'];
               final id = documents[index].id;
+              print(attack);
               return InkWell(
                 onTap: () {
                   showDialog(
@@ -149,9 +150,9 @@ class _GuildeState extends State<Guilde> {
     final TextEditingController levelController =
         TextEditingController(text: userData['level'].toString());
     final TextEditingController attackController =
-        TextEditingController(text: userData['attack'].toString());
+        TextEditingController(text: userData['stats']['attaque'].toString());
     final TextEditingController chanceController =
-        TextEditingController(text: userData['chance'].toString());
+        TextEditingController(text: userData['stats']['chance'].toString());
     final TextEditingController moneyController =
         TextEditingController(text: userData['money'].toString());
     final TextEditingController energyController =
@@ -216,13 +217,6 @@ class _GuildeState extends State<Guilde> {
                 ),
                 keyboardType: TextInputType.number,
               ),
-              TextField(
-                controller: specialisationController,
-                decoration: const InputDecoration(
-                  labelText: 'Specialisation',
-                ),
-                keyboardType: TextInputType.text,
-              ),
             ],
           ),
           actions: [
@@ -233,13 +227,13 @@ class _GuildeState extends State<Guilde> {
             TextButton(
               onPressed: () {
                 FirebaseFirestore.instance.collection('User').doc(id).update({
+                  'stats' : {
+                    'attaque': int.parse(attackController.text),
+                    'chance': int.parse(chanceController.text),
+                  },
                   'name': nameController.text,
                   'level': int.parse(levelController.text),
-                  'attack': int.parse(attackController.text),
-                  'chance': int.parse(chanceController.text),
-                  'energy': int.parse(energyController.text),
                   'points': int.parse(pointsController.text),
-                  'specialisation': int.parse(specialisationController.text),
                   'money': int.parse(moneyController.text)
                 });
                 Navigator.of(context).pop();
