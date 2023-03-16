@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:yded/Game/combat.dart';
 import 'package:yded/Game/profil.dart';
+import 'package:yded/Game/pvp.dart';
 import 'package:yded/Profil/update_profil.dart';
 import 'boutique.dart';
 import 'guilde.dart';
@@ -24,7 +27,7 @@ class _AccueilState extends State<Accueil> {
     Profil(),
     Combat(),
     Guilde(),
-    UpdateProfil(),
+    PvP(),
   ];
 
   @override
@@ -33,6 +36,7 @@ class _AccueilState extends State<Accueil> {
         .collection('User')
         .where('email', isEqualTo: _user.email)
         .snapshots();
+    late Timer _timer;
     return StreamBuilder<QuerySnapshot>(
         stream: _personnage,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -60,61 +64,104 @@ class _AccueilState extends State<Accueil> {
           var energy = personnage.get('energy');
           var percent = personnage.get('percent').toDouble();
 
+// déclarez un ValueNotifier pour stocker la valeur de la minuterie
+          ValueNotifier<Duration> _remainingTime = ValueNotifier(Duration(minutes: 1));
+          DateTime _lastUpdateTime = DateTime.now();
+
+// initialisez la minuterie avec Timer.periodic
+          Timer.periodic(const Duration(seconds: 1), (timer) {
+            DateTime currentTime = DateTime.now();
+            Duration timeSinceLastUpdate = currentTime.difference(_lastUpdateTime);
+            _remainingTime.value -= timeSinceLastUpdate;
+            if (_remainingTime.value <= Duration.zero) {
+              _remainingTime.value = const Duration(minutes: 1);
+              if (energy < 50) {
+                energy += 1;
+                FirebaseFirestore.instance
+                    .collection('User')
+                    .doc(personnage.id)
+                    .update({'energy': energy});
+              }
+            }
+            _lastUpdateTime = currentTime;
+          });
+
           return Scaffold(
-            backgroundColor: Colors.black45,
+              backgroundColor: Colors.black45,
               appBar: AppBar(
-                backgroundColor: _colorSPr(specialisation: specialisation),
-                actions: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.flash_on,
-                        size: 12,
-                      ),
-                      Text(
-                        " : ${energy}/50",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                  backgroundColor: _colorSPr(specialisation: specialisation),
+                  actions: [
+                    Row(
+                      children: [
+                        (energy < 50) ?
+                        ValueListenableBuilder<Duration>(
+                          valueListenable: _remainingTime,
+                          builder: (context, value, child) {
+                            return Text(
+                              '${value.inSeconds}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
+                        ): SizedBox(),
+                        const Icon(
+                          Icons.flash_on,
+                          size: 12,
                         ),
-                      ),
-                      const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 4)),
-                      Text(
-                        "Niv. $level",
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 12),
-                      ),
-                      LinearPercentIndicator(
-                        width: 60.0,
-                        percent: percent,
-                        lineHeight: 14.0,
-                        backgroundColor: Colors.grey,
-                        progressColor: Colors.red,
-                      ),
-                      Text(
-                        money.toString(),
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      const Icon(
-                        Icons.attach_money,
-                        size: 12,
-                      ),
-                      const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16)),
-                    ],
+                        Text(
+                          " : ${energy}/50",
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4)),
+                        Text(
+                          "Niv. $level",
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 12),
+                        ),
+                        LinearPercentIndicator(
+                          width: 60.0,
+                          percent: percent,
+                          lineHeight: 14.0,
+                          backgroundColor: Colors.grey,
+                          progressColor: Colors.red,
+                        ),
+                        Text(
+                          money.toString(),
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        const Icon(
+                          Icons.attach_money,
+                          size: 12,
+                        ),
+                        const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16)),
+                      ],
+                    ),
+                  ],
+                  title: Text(
+                    name,
+                    style: const TextStyle(fontSize: 14),
                   ),
-                ],
-                title: Text(
-                  name,
-                  style: const TextStyle(fontSize: 14),
-                ),
-                leading: CircleAvatar(
+                  leading: CircleAvatar(
                     backgroundColor: Colors.transparent,
-                    child: Image.network(
-                        'https://www.eddy-weber.fr/$specialisation.png',
-                        fit: BoxFit.cover)),
-              ),
+                    child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (BuildContext context) {
+                              return const UpdateProfil();
+                            },
+                          ));
+                        },
+                        child: Image.network(
+                            'https://www.eddy-weber.fr/$specialisation.png',
+                            fit: BoxFit.cover)),
+                  )),
               body: Center(
                 child: _pages.elementAt(_selectedIndex),
               ),
@@ -127,9 +174,10 @@ class _AccueilState extends State<Accueil> {
                     type: BottomNavigationBarType.fixed,
                     selectedFontSize: 15,
                     selectedIconTheme:
-                         IconThemeData(color: Colors.white, size: 30),
+                        IconThemeData(color: Colors.white, size: 30),
                     selectedItemColor: Colors.white,
-                    selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    selectedLabelStyle:
+                        const TextStyle(fontWeight: FontWeight.bold),
                     currentIndex: _selectedIndex,
                     onTap: _onItemTapped,
                     backgroundColor: _colorSPr(specialisation: specialisation),
@@ -147,13 +195,11 @@ class _AccueilState extends State<Accueil> {
                       const BottomNavigationBarItem(
                           icon: Icon(Icons.flag), label: "Guilde"),
                       const BottomNavigationBarItem(
-                          icon: Icon(Icons.settings), label: "Options"),
+                          icon: Icon(Icons.vertical_shades_sharp), label: "PvP"),
                     ],
                   )));
         });
   }
-
-
 
   /// Permet de déterminer quel state est appelé.
   dynamic _colorSPr({required String specialisation}) {
@@ -161,12 +207,9 @@ class _AccueilState extends State<Accueil> {
       "archer": Colors.green.withOpacity(0.3),
       "sorcier": Colors.blue.withOpacity(0.3),
       "guerrier": Colors.red.withOpacity(0.3),
-    }.putIfAbsent(
-        specialisation,
-            () => Colors.black87);
+    }.putIfAbsent(specialisation, () => Colors.black87);
     return colorSp;
   }
-
 
   void _onItemTapped(int index) {
     setState(() {

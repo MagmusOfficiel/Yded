@@ -26,9 +26,10 @@ class _GuildeState extends State<Guilde> {
     final docSnapshot = await docRef.get();
     final userData = docSnapshot.data();
     if (userData != null) {
-        userRole = userData['role'];
+      userRole = userData['role'];
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -54,15 +55,13 @@ class _GuildeState extends State<Guilde> {
               childAspectRatio: 1.0,
             ),
             itemCount: documents.length,
-            itemBuilder: (context, index)  {
+            itemBuilder: (context, index) {
               final data = documents[index].data() as Map<String, dynamic>;
               final name = data['name'] ?? 'Inconnu';
               final specialisation = data['specialisation'];
               final level = data['level'];
-              final attack = data['stats']['attaque'];
-              final chance = data['stats']['chance'];
+              final stats = data['stats'];
               final id = documents[index].id;
-              print(attack);
               return InkWell(
                 onTap: () {
                   showDialog(
@@ -87,8 +86,9 @@ class _GuildeState extends State<Guilde> {
                               animation: true,
                               width: MediaQuery.of(context).size.width / 1.5,
                               lineHeight: 20.0,
-                              percent: attack / 100,
-                              center: Text('Attaque : ${(attack).round()}'),
+                              percent: stats['attaque'] / 100,
+                              center: Text(
+                                  'Attaque : ${(stats['attaque']).round()}'),
                               backgroundColor: Colors.grey,
                               progressColor: Colors.red,
                             ),
@@ -98,8 +98,9 @@ class _GuildeState extends State<Guilde> {
                               animateFromLastPercent: true,
                               width: MediaQuery.of(context).size.width / 1.5,
                               lineHeight: 20.0,
-                              percent: chance / 100,
-                              center: Text('Chance : ${(chance).round()}'),
+                              percent: stats['chance'] / 100,
+                              center:
+                                  Text('Chance : ${(stats['chance']).round()}'),
                               backgroundColor: Colors.grey,
                               progressColor: Colors.cyan,
                             ),
@@ -109,14 +110,15 @@ class _GuildeState extends State<Guilde> {
                           TextButton(
                               onPressed: () => Navigator.of(context).pop(),
                               child: const Icon(Icons.close)),
-                          (userRole == 'admin') ?
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              _showEditDialog(data, id);
-                            },
-                            child: const Text('Modifier'),
-                          ): SizedBox(),
+                          (userRole == 'admin')
+                              ? TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    _showEditDialog(data, id);
+                                  },
+                                  child: const Text('Modifier'),
+                                )
+                              : SizedBox(),
                         ],
                       );
                     },
@@ -159,8 +161,6 @@ class _GuildeState extends State<Guilde> {
         TextEditingController(text: userData['energy'].toString());
     final TextEditingController pointsController =
         TextEditingController(text: userData['points'].toString());
-    final TextEditingController specialisationController =
-        TextEditingController(text: userData['specialisation'].toString());
 
     showDialog(
       context: context,
@@ -227,10 +227,17 @@ class _GuildeState extends State<Guilde> {
             TextButton(
               onPressed: () {
                 FirebaseFirestore.instance.collection('User').doc(id).update({
-                  'stats' : {
+                  'stats': {
                     'attaque': int.parse(attackController.text),
                     'chance': int.parse(chanceController.text),
+                    'feu': userData['stats']['feu'],
+                    'eau': userData['stats']['eau'],
+                    'terre': userData['stats']['terre'],
+                    'air': userData['stats']['air'],
+                    'lumière': userData['stats']['lumière'],
+                    'ténébre': userData['stats']['ténébre']
                   },
+                  'energy': int.parse(energyController.text),
                   'name': nameController.text,
                   'level': int.parse(levelController.text),
                   'points': int.parse(pointsController.text),

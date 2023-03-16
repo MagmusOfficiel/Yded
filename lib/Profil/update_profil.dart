@@ -35,7 +35,9 @@ class _UpdateProfilState extends State<UpdateProfil> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
+    return Scaffold(
+      appBar: AppBar(title: Text("Votre profil"),),
+        body: Form(
       key: formKey,
       child: Column(
         children: [
@@ -55,9 +57,7 @@ class _UpdateProfilState extends State<UpdateProfil> {
                     labelText: 'Pseudo'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (pseudo) =>
-                pseudo == null
-                        ? 'Entrer un pseudo valide'
-                        : null,
+                    pseudo == null ? 'Entrer un pseudo valide' : null,
               )),
           Padding(
               padding: const EdgeInsets.only(right: 40, left: 40, top: 4),
@@ -106,7 +106,7 @@ class _UpdateProfilState extends State<UpdateProfil> {
               ))
         ],
       ),
-    );
+    ));
   }
 
   Future updateProfil() async {
@@ -130,9 +130,9 @@ class _UpdateProfilState extends State<UpdateProfil> {
             .where('email', isEqualTo: user.email)
             .get();
         final personnageDoc = personnageSnapshot.docs.first;
-        await personnageDoc.reference.update({'name': pseudoController.text.trim()});
+        await personnageDoc.reference
+            .update({'name': pseudoController.text.trim()});
       }
-
 
       Utils.showSnackBar('Votre profil a été modifier !', true);
       Navigator.of(context).popUntil((route) => route.isFirst);

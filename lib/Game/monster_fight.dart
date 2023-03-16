@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+
+import '../Profil/update_profil.dart';
 
 class MonsterFight extends StatefulWidget {
   late final String _name;
@@ -74,59 +77,107 @@ class _MonsterFightState extends State<MonsterFight> {
           var money = personnage?.get('money');
           var percent = personnage?.get('percent').toDouble() ?? 0.0;
           var points = personnage?.get('points');
+
+          // déclarez un ValueNotifier pour stocker la valeur de la minuterie
+          ValueNotifier<Duration> _remainingTime =
+              ValueNotifier(Duration(minutes: 1));
+          DateTime _lastUpdateTime = DateTime.now();
+
+          // initialisez la minuterie avec Timer.periodic
+          Timer.periodic(const Duration(seconds: 1), (timer) {
+            DateTime currentTime = DateTime.now();
+            Duration timeSinceLastUpdate =
+                currentTime.difference(_lastUpdateTime);
+            _remainingTime.value -= timeSinceLastUpdate;
+            if (_remainingTime.value <= Duration.zero) {
+              _remainingTime.value = const Duration(minutes: 1);
+              if (energy < 50) {
+                energy += 1;
+                FirebaseFirestore.instance
+                    .collection('User')
+                    .doc(personnage?.id)
+                    .update({'energy': energy});
+              }
+            }
+            _lastUpdateTime = currentTime;
+          });
+
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: _colorSPr(specialisation: specialisation),
-              actions: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.flash_on,
-                      size: 12,
-                    ),
-                    Text(
-                      " : ${energy}/50",
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                backgroundColor: _colorSPr(specialisation: specialisation),
+                actions: [
+                  Row(
+                    children: [
+                      (energy < 50)
+                          ? ValueListenableBuilder<Duration>(
+                              valueListenable: _remainingTime,
+                              builder: (context, value, child) {
+                                return Text(
+                                  '${value.inSeconds}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                );
+                              },
+                            )
+                          : SizedBox(),
+                      const Icon(
+                        Icons.flash_on,
+                        size: 12,
                       ),
-                    ),
-                    const Padding(padding: EdgeInsets.symmetric(horizontal: 4)),
-                    Text(
-                      "Niv. $level",
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 12),
-                    ),
-                    LinearPercentIndicator(
-                      width: 60.0,
-                      percent: percent,
-                      lineHeight: 14.0,
-                      backgroundColor: Colors.grey,
-                      progressColor: Colors.red,
-                    ),
-                    Text(
-                      money.toString(),
-                      style: TextStyle(fontSize: 12),
-                    ),
-                    const Icon(
-                      Icons.attach_money,
-                      size: 12,
-                    ),
-                    const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16)),
-                  ],
+                      Text(
+                        " : ${energy}/50",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 4)),
+                      Text(
+                        "Niv. $level",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                      LinearPercentIndicator(
+                        width: 60.0,
+                        percent: percent,
+                        lineHeight: 14.0,
+                        backgroundColor: Colors.grey,
+                        progressColor: Colors.red,
+                      ),
+                      Text(
+                        money.toString(),
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      const Icon(
+                        Icons.attach_money,
+                        size: 12,
+                      ),
+                      const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16)),
+                    ],
+                  ),
+                ],
+                title: Text(
+                  name,
+                  style: const TextStyle(fontSize: 14),
                 ),
-              ],
-              title: Text(
-                name,
-                style: const TextStyle(fontSize: 14),
-              ),
-              leading: CircleAvatar(
+                leading: CircleAvatar(
                   backgroundColor: Colors.transparent,
-                  child: Image.network(
-                      'https://www.eddy-weber.fr/$specialisation.png',
-                      fit: BoxFit.cover)),
-            ),
+                  child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) {
+                            return const UpdateProfil();
+                          },
+                        ));
+                      },
+                      child: Image.network(
+                          'https://www.eddy-weber.fr/$specialisation.png',
+                          fit: BoxFit.cover)),
+                )),
             body: Stack(
               children: [
                 SizedBox(
@@ -517,7 +568,7 @@ class _MonsterFightState extends State<MonsterFight> {
         'level': level,
         'points': points,
         'percent': percent,
-        'energy' : energy
+        'energy': energy
       });
     });
   }

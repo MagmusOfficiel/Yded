@@ -22,7 +22,7 @@ class _AddItemState extends State<AddItem> {
   final lumiereController = TextEditingController();
   final tenebreController = TextEditingController();
 
-  List<String> types = [];
+  String? types;
   String? selectedCategory;
 
   @override
@@ -191,13 +191,14 @@ class _AddItemState extends State<AddItem> {
               }).toList(),
             ),
             const SizedBox(height: 20),
-            DropDownMultiSelect(
-              onChanged: (List<String> x) {
+            DropdownButton<String?>(
+              value: types,
+              onChanged: (String? newValue) {
                 setState(() {
-                  types = x;
+                  types = newValue;
                 });
               },
-              options: [
+              items: <String>[
                 'Casque',
                 'Collier',
                 'Epaule',
@@ -213,10 +214,14 @@ class _AddItemState extends State<AddItem> {
                 'Bottes',
                 'Bijoux',
                 'Pet',
+                'Bouclier',
                 'Utilisable'
-              ],
-              selectedValues: types,
-              whenEmpty: 'Type',
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
