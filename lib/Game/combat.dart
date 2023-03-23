@@ -68,13 +68,17 @@ class _CombatState extends State<Combat> {
                               poster: monstre['poster'],
                               docId: document.id,
                               categories: monstre['categories'],
+                              bloque: true,
+                              nbrUser: monstre['nbrUser']
                             );
+
                           },
+
                         ))
                       : null,
                   child: Card(
                     margin: const EdgeInsets.all(10),
-                    color: (monstre['dead'] == false)
+                    color: (monstre['dead'] == false && monstre['bloque'] == false)
                         ? Colors.black
                         : Colors.black.withOpacity(0.5),
                     shadowColor:
@@ -129,7 +133,7 @@ class _CombatState extends State<Combat> {
                                         color: Colors.red,
                                       ),
                                     )
-                                  : SizedBox()
+                                  : const SizedBox()
                               : ElevatedButton(
                                   onPressed: () => {
                                         (userRole == 'admin')
@@ -161,10 +165,10 @@ class _CombatState extends State<Combat> {
                                       fontWeight: FontWeight.bold,
                                       fontStyle: FontStyle.italic),
                                 ),
-                          subtitle: Text(
+                          subtitle: (monstre['bloque'] == false) ? Text(
                             'Niveau : ${getDifficultyLevel(maxLife: monstre['maxLife'])}',
                             textAlign: TextAlign.center,
-                          ),
+                          ) : const Text("Combat en cours...",textAlign: TextAlign.center,),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(10),
@@ -201,7 +205,7 @@ class _CombatState extends State<Combat> {
                             backgroundColor:
                                 MaterialStatePropertyAll(Colors.white)),
                         child: const Icon(Icons.add, color: Colors.black)))
-                : SizedBox()
+                : const SizedBox()
           ]);
         });
   }
@@ -260,18 +264,18 @@ class _CombatState extends State<Combat> {
     return colorChip;
   }
 
-  void _showEditDialog(Map<String, dynamic> userData, id) {
+  void _showEditDialog(Map<String, dynamic> userData, String id) {
     final TextEditingController nameController =
-        TextEditingController(text: userData['name']);
+    TextEditingController(text: userData['name']);
     bool mortController = userData['dead'] ?? true;
     final TextEditingController lifeController =
-        TextEditingController(text: userData['life'].toString());
+    TextEditingController(text: userData['life'].toString());
     final TextEditingController maxLifeController =
-        TextEditingController(text: userData['maxLife'].toString());
+    TextEditingController(text: userData['maxLife'].toString());
     final TextEditingController imageController =
-        TextEditingController(text: userData['poster'].toString());
+    TextEditingController(text: userData['poster'].toString());
     final TextEditingController categoriesController =
-        TextEditingController(text: userData['categories'].join(', '));
+    TextEditingController(text: userData['categories'].join(', '));
 
     showDialog(
       context: context,
@@ -279,6 +283,7 @@ class _CombatState extends State<Combat> {
         return AlertDialog(
           title: const Text('Modifier utilisateur'),
           content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
@@ -332,30 +337,37 @@ class _CombatState extends State<Combat> {
               child: const Text('Annuler'),
             ),
             TextButton(
-              onPressed: () {
-                FirebaseFirestore.instance
-                    .collection('Monsters')
-                    .doc(id)
-                    .update({
-                  'name': nameController.text,
-                  'dead': mortController,
-                  'life': int.parse(lifeController.text),
-                  'maxLife': int.parse(maxLifeController.text),
-                  'poster': imageController.text,
-                  'categories': categoriesController.text.split(', ')
-                });
-                Navigator.of(context).pop();
+              onPressed: () async {
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('Monsters')
+                      .doc(id)
+                      .update({
+                    'name': nameController.text,
+                    'dead': mortController,
+                    'life': int.parse(lifeController.text),
+                    'maxLife': int.parse(maxLifeController.text),
+                    'poster': imageController.text,
+                    'categories': categoriesController.text.split(', ')
+                  });
+                  Navigator.of(context).pop();
+                } catch (error) {
+                  print('Erreur lors de la mise à jour des données : $error');
+                }
               },
               child: const Text('Enregistrer'),
             ),
-
             TextButton(
-              onPressed: () {
-                FirebaseFirestore.instance
-                    .collection("Monsters")
-                    .doc(id)
-                    .delete();
-                Navigator.of(context).pop();
+              onPressed: () async {
+                try {
+                  await FirebaseFirestore.instance
+                      .collection("Monsters")
+                      .doc(id)
+                      .delete();
+                  Navigator.of(context).pop();
+                } catch (error) {
+                  print('Erreur lors de la suppression des données : $error');
+                }
               },
               child: const Text('Supprimer'),
             ),

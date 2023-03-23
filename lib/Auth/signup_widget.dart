@@ -6,6 +6,8 @@ import 'package:yded/Utils/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../Model/UserYded.dart';
+
 class SignUpWidget extends StatefulWidget {
   final Function() onClickedSignIn;
 
@@ -179,14 +181,16 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       await FirebaseAuth.instance.currentUser!
           .updateDisplayName(pseudoController.text.trim());
       final currentUser = FirebaseAuth.instance.currentUser;
-      await FirebaseFirestore.instance.collection('User').doc(currentUser?.uid).set({
-        'email': emailController.value.text,
-        'name': pseudoController.value.text,
-        'specialisation': "aventurier",
-        'energy': 50,
-        'stats': {
+
+      UserYded newUser = UserYded(
+        email: emailController.value.text,
+        name: pseudoController.value.text,
+        specialisation: "aventurier",
+        energy: 50,
+        stats: {
           'attaque': 1,
           'chance': 1,
+          'energy' : 0,
           'feu': 0,
           'eau': 0,
           'terre': 0,
@@ -194,13 +198,68 @@ class _SignUpWidgetState extends State<SignUpWidget> {
           'lumière': 0,
           'ténébre': 0
         },
+        level: 1,
+        money: 0,
+        percent: 0,
+        points: 0,
+        ultime: 0,
+        role: "joueur",
+      );
+
+      await FirebaseFirestore.instance
+          .collection('User')
+          .doc(currentUser?.uid)
+          .set(newUser.toMap());
+      FirebaseFirestore.instance
+          .collection('User')
+          .doc(currentUser?.uid)
+          .collection('Sorts')
+          .add({
+        'nom': 'Coup de poing',
+        'type': 'air',
+        'degats': 1,
+        'position': 1,
+        'acquis': true,
         'level': 1,
-        'money': 0,
-        'percent': 0,
-        'points': 0,
-        'ultime': 0,
-        'sorts': ["Coup de poing", "Rage", "Jet d'eau", "Lance pierre"],
-        'role': "joueur"
+      });
+
+      FirebaseFirestore.instance
+          .collection('User')
+          .doc(currentUser?.uid)
+          .collection('Sorts')
+          .add({
+        'nom': 'Lance caillou',
+        'type': 'terre',
+        'degats': 5,
+        'position': 2,
+        'acquis': true,
+        'level': 1,
+      });
+
+      FirebaseFirestore.instance
+          .collection('User')
+          .doc(currentUser?.uid)
+          .collection('Sorts')
+          .add({
+        'nom': 'Rage',
+        'type': 'feu',
+        'degats': 3,
+        'position': 3,
+        'acquis': true,
+        'level': 1,
+      });
+
+      FirebaseFirestore.instance
+          .collection('User')
+          .doc(currentUser?.uid)
+          .collection('Sorts')
+          .add({
+        'nom': "Jet d'eau",
+        'type': 'eau',
+        'degats': 4,
+        'position': 4,
+        'acquis': true,
+        'level': 1,
       });
     } on FirebaseAuthException catch (e) {
       print(e);

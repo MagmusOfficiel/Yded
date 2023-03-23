@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,8 @@ class Accueil extends StatefulWidget {
 class _AccueilState extends State<Accueil> {
   final _user = FirebaseAuth.instance.currentUser!;
   int _selectedIndex = 2;
-
+  final ValueNotifier<Duration> _remainingTime =
+      ValueNotifier(const Duration(minutes: 1));
   static const List<Widget> _pages = <Widget>[
     Boutique(),
     Profil(),
@@ -31,12 +31,42 @@ class _AccueilState extends State<Accueil> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _startEnergyTimer();
+  }
+
+  @override
+  void dispose() {
+    _energyTimer?.cancel();
+    super.dispose();
+  }
+
+  Timer? _energyTimer;
+
+  void _startEnergyTimer() {
+    DateTime _lastUpdateTime = DateTime.now();
+    _energyTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      DateTime currentTime = DateTime.now();
+      Duration timeSinceLastUpdate = currentTime.difference(_lastUpdateTime);
+      _remainingTime.value -= timeSinceLastUpdate;
+      if (_remainingTime.value <= Duration.zero) {
+        _remainingTime.value = const Duration(minutes: 1);
+        // Mettez à jour l'énergie ici si nécessaire.
+        FirebaseFirestore.instance.collection('User').doc(_user.uid).update({
+          'energy': 50,
+        });
+      }
+      _lastUpdateTime = currentTime;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final Stream<QuerySnapshot> _personnage = FirebaseFirestore.instance
         .collection('User')
         .where('email', isEqualTo: _user.email)
         .snapshots();
-    late Timer _timer;
     return StreamBuilder<QuerySnapshot>(
         stream: _personnage,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -57,156 +87,137 @@ class _AccueilState extends State<Accueil> {
 
           // Récupère la propriété "level" du personnage
           final level = personnage.get('level');
-          final points = personnage.get('points');
           final name = personnage.get('name');
           final money = personnage.get('money');
           final specialisation = personnage.get('specialisation');
           var energy = personnage.get('energy');
           var percent = personnage.get('percent').toDouble();
 
-// déclarez un ValueNotifier pour stocker la valeur de la minuterie
-          ValueNotifier<Duration> _remainingTime = ValueNotifier(Duration(minutes: 1));
-          DateTime _lastUpdateTime = DateTime.now();
-
-// initialisez la minuterie avec Timer.periodic
-          Timer.periodic(const Duration(seconds: 1), (timer) {
-            DateTime currentTime = DateTime.now();
-            Duration timeSinceLastUpdate = currentTime.difference(_lastUpdateTime);
-            _remainingTime.value -= timeSinceLastUpdate;
-            if (_remainingTime.value <= Duration.zero) {
-              _remainingTime.value = const Duration(minutes: 1);
-              if (energy < 50) {
-                energy += 1;
-                FirebaseFirestore.instance
-                    .collection('User')
-                    .doc(personnage.id)
-                    .update({'energy': energy});
-              }
-            }
-            _lastUpdateTime = currentTime;
-          });
-
           return Scaffold(
               backgroundColor: Colors.black45,
-              appBar: AppBar(
-                  backgroundColor: _colorSPr(specialisation: specialisation),
-                  actions: [
-                    Row(
-                      children: [
-                        (energy < 50) ?
-                        ValueListenableBuilder<Duration>(
-                          valueListenable: _remainingTime,
-                          builder: (context, value, child) {
-                            return Text(
-                              '${value.inSeconds}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            );
-                          },
-                        ): SizedBox(),
-                        const Icon(
-                          Icons.flash_on,
-                          size: 12,
-                        ),
-                        Text(
-                          " : ${energy}/50",
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4)),
-                        Text(
-                          "Niv. $level",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 12),
-                        ),
-                        LinearPercentIndicator(
-                          width: 60.0,
-                          percent: percent,
-                          lineHeight: 14.0,
-                          backgroundColor: Colors.grey,
-                          progressColor: Colors.red,
-                        ),
-                        Text(
-                          money.toString(),
-                          style: TextStyle(fontSize: 12),
-                        ),
-                        const Icon(
-                          Icons.attach_money,
-                          size: 12,
-                        ),
-                        const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16)),
-                      ],
-                    ),
-                  ],
-                  title: Text(
-                    name,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (BuildContext context) {
-                              return const UpdateProfil();
-                            },
-                          ));
-                        },
-                        child: Image.network(
-                            'https://www.eddy-weber.fr/$specialisation.png',
-                            fit: BoxFit.cover)),
-                  )),
+              appBar: _buildAppBar(
+                  specialisation, energy, level, percent, money.toDouble(), name),
               body: Center(
                 child: _pages.elementAt(_selectedIndex),
               ),
-              bottomNavigationBar: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(24),
-                    topLeft: Radius.circular(24),
-                  ),
-                  child: BottomNavigationBar(
-                    type: BottomNavigationBarType.fixed,
-                    selectedFontSize: 15,
-                    selectedIconTheme:
-                        IconThemeData(color: Colors.white, size: 30),
-                    selectedItemColor: Colors.white,
-                    selectedLabelStyle:
-                        const TextStyle(fontWeight: FontWeight.bold),
-                    currentIndex: _selectedIndex,
-                    onTap: _onItemTapped,
-                    backgroundColor: _colorSPr(specialisation: specialisation),
-                    items: [
-                      const BottomNavigationBarItem(
-                          icon: Icon(Icons.shopping_bag), label: "Boutique"),
-                      (points <= 0)
-                          ? const BottomNavigationBarItem(
-                              icon: Icon(Icons.person), label: "Profil")
-                          : const BottomNavigationBarItem(
-                              icon: Icon(Icons.person, color: Colors.green),
-                              label: "Profil"),
-                      const BottomNavigationBarItem(
-                          icon: Icon(Icons.gamepad), label: "Combat"),
-                      const BottomNavigationBarItem(
-                          icon: Icon(Icons.flag), label: "Guilde"),
-                      const BottomNavigationBarItem(
-                          icon: Icon(Icons.vertical_shades_sharp), label: "PvP"),
-                    ],
-                  )));
+              bottomNavigationBar: _buildBottomNavigationBar(specialisation));
         });
   }
 
-  /// Permet de déterminer quel state est appelé.
+  AppBar _buildAppBar(String specialisation, int energy, int level,
+      double percent, double money, String name) {
+    return AppBar(
+      backgroundColor: _colorSPr(specialisation: specialisation),
+      actions: [
+        Row(
+          children: [
+            _buildEnergyIndicator(energy, _remainingTime),
+            const Icon(
+              Icons.flash_on,
+              size: 12,
+            ),
+            Text(
+              " : $energy/50",
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Padding(padding: EdgeInsets.symmetric(horizontal: 4)),
+            Text(
+              "Niv. $level",
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+            LinearPercentIndicator(
+              width: 60.0,
+              percent: percent,
+              lineHeight: 14.0,
+              backgroundColor: Colors.grey,
+              progressColor: Colors.red,
+            ),
+            Text(
+              money.toStringAsFixed(0),
+              style: const TextStyle(fontSize: 12),
+            ),
+            const Icon(
+              Icons.attach_money,
+              size: 12,
+            ),
+            const Padding(padding: EdgeInsets.symmetric(horizontal: 16)),
+          ],
+        ),
+      ],
+      title: Text(
+        name,
+        style: const TextStyle(fontSize: 14),
+      ),
+      leading: CircleAvatar(
+        backgroundColor: Colors.transparent,
+        child: GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return const UpdateProfil();
+                },
+              ));
+            },
+            child: Image.network(
+                'https://www.eddy-weber.fr/$specialisation.png',
+                fit: BoxFit.cover,width: 45,height: 45,)),
+      ),
+    );
+  }
+
+  Widget _buildEnergyIndicator(
+      int energy, ValueNotifier<Duration> remainingTime) {
+    return (energy < 50)
+        ? ValueListenableBuilder<Duration>(
+            valueListenable: remainingTime,
+            builder: (context, value, child) {
+              return Text(
+                '${value.inSeconds}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
+          )
+        : const SizedBox();
+  }
+
+  ClipRRect _buildBottomNavigationBar(String specialisation) {
+    return ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(24),
+          topLeft: Radius.circular(24),
+        ),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          selectedFontSize: 15,
+          selectedIconTheme: const IconThemeData(color: Colors.white, size: 30),
+          selectedItemColor: Colors.white,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          backgroundColor: _colorSPr(specialisation: specialisation),
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_bag), label: "Boutique"),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
+            BottomNavigationBarItem(icon: Icon(Icons.gamepad), label: "Combat"),
+            BottomNavigationBarItem(icon: Icon(Icons.flag), label: "Guilde"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.vertical_shades_sharp), label: "PvP"),
+          ],
+        ));
+  }
+
   dynamic _colorSPr({required String specialisation}) {
     Object colorSp = {
-      "archer": Colors.green.withOpacity(0.3),
-      "sorcier": Colors.blue.withOpacity(0.3),
-      "guerrier": Colors.red.withOpacity(0.3),
+      "archer": Colors.green.withOpacity(0.2),
+      "sorcier": Colors.blue.withOpacity(0.2),
+      "guerrier": Colors.red.withOpacity(0.2),
     }.putIfAbsent(specialisation, () => Colors.black87);
     return colorSp;
   }

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
 
 class Guilde extends StatefulWidget {
   const Guilde({Key? key}) : super(key: key);
@@ -28,6 +27,7 @@ class _GuildeState extends State<Guilde> {
     if (userData != null) {
       userRole = userData['role'];
     }
+    print(userRole);
   }
 
   @override
@@ -76,33 +76,71 @@ class _GuildeState extends State<Guilde> {
                           children: [
                             Image.network(
                               "https://www.eddy-weber.fr/$specialisation.png",
-                              height: MediaQuery.of(context).size.height / 6,
+                              height: 100,width: 100,
                               fit: BoxFit.contain,
                             ),
                             const SizedBox(height: 8.0),
                             const SizedBox(height: 8.0),
-                            LinearPercentIndicator(
-                              animateFromLastPercent: true,
-                              animation: true,
-                              width: MediaQuery.of(context).size.width / 1.5,
-                              lineHeight: 20.0,
-                              percent: stats['attaque'] / 100,
-                              center: Text(
-                                  'Attaque : ${(stats['attaque']).round()}'),
-                              backgroundColor: Colors.grey,
-                              progressColor: Colors.red,
+                            Column(
+                              children: [
+                                buildStatRow(
+                                    Icons
+                                        .add_circle_outline,
+                                    'Attaque',
+                                    stats
+                                    ['attaque'],
+                                    Colors.grey),
+                                buildStatRow(
+                                    Icons.flash_on,
+                                    'Energy',
+                                    data
+                                    ['energy'],
+                                    Colors.indigo),
+                                buildStatRow(
+                                    Icons
+                                        .local_fire_department_sharp,
+                                    'Feu',
+                                    stats['feu'],
+                                    Colors.red),
+                                buildStatRow(
+                                    Icons.water_drop,
+                                    'Eau',
+                                    stats['eau'],
+                                    Colors.cyan),
+                                buildStatRow(
+                                    Icons.landscape,
+                                    'Terre',
+                                    stats
+                                    ['terre'],
+                                    Colors.brown),
+                              ],
                             ),
-                            const SizedBox(height: 8.0),
-                            LinearPercentIndicator(
-                              animation: true,
-                              animateFromLastPercent: true,
-                              width: MediaQuery.of(context).size.width / 1.5,
-                              lineHeight: 20.0,
-                              percent: stats['chance'] / 100,
-                              center:
-                                  Text('Chance : ${(stats['chance']).round()}'),
-                              backgroundColor: Colors.grey,
-                              progressColor: Colors.cyan,
+                            Column(
+                              children: [
+                                buildStatRow(
+                                    Icons.stars_outlined,
+                                    'Chance',
+                                    stats
+                                    ['chance'],
+                                    Colors.white),
+                                buildStatRow(
+                                    Icons.cloud,
+                                    'Air',
+                                    stats['air'],
+                                    Colors.white),
+                                buildStatRow(
+                                    Icons.light_mode,
+                                    'Lumière',
+                                    stats
+                                    ['lumière'],
+                                    Colors.yellowAccent),
+                                buildStatRow(
+                                    Icons.dark_mode,
+                                    'Ténébre',
+                                    stats
+                                    ['ténébre'],
+                                    Colors.deepPurple),
+                              ],
                             ),
                           ],
                         ),
@@ -130,7 +168,7 @@ class _GuildeState extends State<Guilde> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.network(
-                        "https://www.eddy-weber.fr/$specialisation.png",
+                        "https://www.eddy-weber.fr/$specialisation.png",fit: BoxFit.cover,width: 60,height: 60,
                       ),
                       const SizedBox(height: 8.0),
                       Text(name,
@@ -155,6 +193,18 @@ class _GuildeState extends State<Guilde> {
         TextEditingController(text: userData['stats']['attaque'].toString());
     final TextEditingController chanceController =
         TextEditingController(text: userData['stats']['chance'].toString());
+    final TextEditingController feuController =
+    TextEditingController(text: userData['stats']['feu'].toString());
+    final TextEditingController eauController =
+    TextEditingController(text: userData['stats']['eau'].toString());
+    final TextEditingController terreController =
+    TextEditingController(text: userData['stats']['terre'].toString());
+    final TextEditingController airController =
+    TextEditingController(text: userData['stats']['air'].toString());
+    final TextEditingController lumiereController =
+    TextEditingController(text: userData['stats']['lumière'].toString());
+    final TextEditingController tenebreController =
+    TextEditingController(text: userData['stats']['ténébre'].toString());
     final TextEditingController moneyController =
         TextEditingController(text: userData['money'].toString());
     final TextEditingController energyController =
@@ -165,7 +215,7 @@ class _GuildeState extends State<Guilde> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
+        return SingleChildScrollView( child : AlertDialog(
           title: const Text('Modifier utilisateur'),
           content: Column(
             children: [
@@ -203,6 +253,49 @@ class _GuildeState extends State<Guilde> {
                 ),
                 keyboardType: TextInputType.number,
               ),
+
+              TextField(
+                controller: feuController,
+                decoration: const InputDecoration(
+                  labelText: 'Feu',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: eauController,
+                decoration: const InputDecoration(
+                  labelText: 'Eau',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: terreController,
+                decoration: const InputDecoration(
+                  labelText: 'terre',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: airController,
+                decoration: const InputDecoration(
+                  labelText: 'Air',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: lumiereController,
+                decoration: const InputDecoration(
+                  labelText: 'Lumière',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: tenebreController,
+                decoration: const InputDecoration(
+                  labelText: 'Ténébre',
+                ),
+                keyboardType: TextInputType.number,
+              ),
               TextField(
                 controller: pointsController,
                 decoration: const InputDecoration(
@@ -230,12 +323,12 @@ class _GuildeState extends State<Guilde> {
                   'stats': {
                     'attaque': int.parse(attackController.text),
                     'chance': int.parse(chanceController.text),
-                    'feu': userData['stats']['feu'],
-                    'eau': userData['stats']['eau'],
-                    'terre': userData['stats']['terre'],
-                    'air': userData['stats']['air'],
-                    'lumière': userData['stats']['lumière'],
-                    'ténébre': userData['stats']['ténébre']
+                    'feu': int.parse(feuController.text),
+                    'eau': int.parse(eauController.text),
+                    'terre': int.parse(terreController.text),
+                    'air': int.parse(airController.text),
+                    'lumière': int.parse(lumiereController.text),
+                    'ténébre': int.parse(tenebreController.text)
                   },
                   'energy': int.parse(energyController.text),
                   'name': nameController.text,
@@ -248,8 +341,19 @@ class _GuildeState extends State<Guilde> {
               child: const Text('Enregistrer'),
             ),
           ],
-        );
+        ));
       },
     );
   }
+
+// Helper functions
+  Widget buildStatRow(IconData icon, String label, int value, Color color) {
+    return Row(
+      children: [
+        Icon(icon, color: color),
+        Text('$label : $value'),
+      ],
+    );
+  }
+
 }
