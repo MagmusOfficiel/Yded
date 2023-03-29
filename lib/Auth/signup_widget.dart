@@ -5,8 +5,7 @@ import 'package:yded/main.dart';
 import 'package:yded/Utils/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
-import '../Model/UserYded.dart';
+import 'package:yded/Model/UserYded.dart';
 
 class SignUpWidget extends StatefulWidget {
   final Function() onClickedSignIn;
@@ -39,22 +38,11 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       SizedBox(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        child: Image.network(
+        child: Image.asset(
             (isSelected == true)
-                ? 'https://www.eddy-weber.fr/YddeF.gif'
-                : 'https://www.eddy-weber.fr/Ydde.gif',
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) {
-            return child;
-          }
-          return CircularProgressIndicator(
-            value: loadingProgress.expectedTotalBytes != null
-                ? loadingProgress.cumulativeBytesLoaded /
-                    loadingProgress.expectedTotalBytes!
-                : null,
-          );
-        }),
+                ? 'assets/images/YddeF.gif'
+                : 'assets/images/Ydde.gif',
+            fit: BoxFit.cover),
       ),
       Form(
         key: formKey,
@@ -204,6 +192,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         points: 0,
         ultime: 0,
         role: "joueur",
+        element: "terre"
       );
 
       await FirebaseFirestore.instance
@@ -216,50 +205,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
           .collection('Sorts')
           .add({
         'nom': 'Coup de poing',
-        'type': 'air',
+        'element': 'terre',
         'degats': 1,
-        'position': 1,
-        'acquis': true,
-        'level': 1,
-      });
-
-      FirebaseFirestore.instance
-          .collection('User')
-          .doc(currentUser?.uid)
-          .collection('Sorts')
-          .add({
-        'nom': 'Lance caillou',
-        'type': 'terre',
-        'degats': 5,
-        'position': 2,
-        'acquis': true,
-        'level': 1,
-      });
-
-      FirebaseFirestore.instance
-          .collection('User')
-          .doc(currentUser?.uid)
-          .collection('Sorts')
-          .add({
-        'nom': 'Rage',
-        'type': 'feu',
-        'degats': 3,
-        'position': 3,
-        'acquis': true,
-        'level': 1,
-      });
-
-      FirebaseFirestore.instance
-          .collection('User')
-          .doc(currentUser?.uid)
-          .collection('Sorts')
-          .add({
-        'nom': "Jet d'eau",
-        'type': 'eau',
-        'degats': 4,
-        'position': 4,
-        'acquis': true,
-        'level': 1,
       });
     } on FirebaseAuthException catch (e) {
       print(e);

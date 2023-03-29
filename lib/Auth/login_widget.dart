@@ -22,15 +22,6 @@ class _LoginWidgetState extends State<LoginWidget> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool isSelected = false;
-  late final _fond1;
-  late final _fond2;
-
-  @override
-  void initState() {
-    super.initState();
-    _fond1 = 'https://www.eddy-weber.fr/Ydde.gif';
-    _fond2 = 'https://www.eddy-weber.fr/YddeF.gif';
-  }
 
   @override
   void dispose() {
@@ -53,8 +44,8 @@ class _LoginWidgetState extends State<LoginWidget> {
     return SizedBox(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
-      child: Image.network(
-        isSelected ? _fond2 : _fond1,
+      child: Image.asset(
+        isSelected ? 'assets/images/YddeF.gif' : 'assets/images/Ydde.gif',
         fit: BoxFit.cover,
       ),
     );

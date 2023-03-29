@@ -91,17 +91,6 @@ class _MonsterFightState extends State<MonsterFight>
     }
   }
 
-  // Ajoutez un état local pour stocker les données des sorts.
-  List<Map<String, dynamic>> _sortsData = [];
-
-// Ajoutez cette fonction pour charger les données des sorts lors de l'initialisation de l'écran.
-  Future<void> _loadSortsData(DocumentReference personnageRef) async {
-    final sortsCollection = personnageRef.collection('Sorts');
-    final sortsSnapshot = await sortsCollection.orderBy('position').get();
-
-    _sortsData = sortsSnapshot.docs.map((doc) => doc.data()).toList();
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -131,91 +120,44 @@ class _MonsterFightState extends State<MonsterFight>
         .where('email', isEqualTo: _user.email)
         .snapshots();
     return StreamBuilder<QuerySnapshot>(
-        stream: _personnageStream,
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return Text('Une erreur est survenue : ${snapshot.error}');
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
-            return Text('Aucun personnage trouvé pour cet utilisateur.');
-          }
-          // Récupère le premier document du QuerySnapshot
-          final personnage = snapshot.data!.docs.first;
+      stream: _personnageStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Une erreur est survenue : ${snapshot.error}');
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
+          return const Text('Aucun personnage trouvé pour cet utilisateur.');
+        }
+        // Récupère le premier document du QuerySnapshot
+        final personnage = snapshot.data!.docs.first;
+        final sorts = personnage.reference.collection('Sorts');
 
-          final name = personnage.get('name');
-          final specialisation = personnage.get('specialisation');
-          var ultime = personnage.get('ultime').toDouble() ?? 00;
-          final stats = personnage.get('stats');
-          var energy = personnage.get('energy');
-          var level = personnage.get('level');
-          var money = personnage.get('money');
-          var percent = personnage.get('percent').toDouble() ?? 0.0;
-          var points = personnage.get('points');
-          // Récupère les sorts du personnage
-          return FutureBuilder(
-            future: _loadSortsData(personnage.reference),
-            builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-              if (_sortsData.isEmpty) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
+        return StreamBuilder<QuerySnapshot>(
+            stream: sorts.snapshots(),
+            builder: (BuildContext context,
+                AsyncSnapshot<QuerySnapshot> sortsSnapshot) {
+              if (sortsSnapshot.hasError) {
+                return Text('Une erreur est survenue : ${sortsSnapshot.error}');
               }
-              Random random = Random();
-
-              // Crée une liste de Widgets pour afficher les sorts
-              final sortWidgets = _sortsData.map((sort) {
-                final sortsNom = sort['nom'];
-                final sortsType = sort['type'];
-                int degats = sort['degats'];
-                num damage = random.nextInt(degats) + stats['attaque'];
-                if (sortsType == 'feu') {
-                  damage += stats['feu'];
-                }
-                return SizedBox(
-                  height: MediaQuery.of(context).size.height / 15,
-                  width: MediaQuery.of(context).size.width / 2.2,
-                  child: InkWell(
-                    onTap: () {
-                      _attackBoss(
-                        energy: energy,
-                        ultime: ultime,
-                        percent: percent,
-                        attack: damage,
-                        level: level,
-                        money: money,
-                        points: points,
-                        chance: stats['chance'],
-                        personnage: personnage,
-                        degats: damage,
-                      );
-                    },
-                    child: Card(
-                      color: _colorSorts(type: sortsType),
-                      elevation: 10,
-                      borderOnForeground: true,
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(color: Colors.black, width: 3),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Text(
-                          sortsNom,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList();
+              // Récupère le premier document de la sous-collection "Sorts"
+              final Map<String, dynamic>? sortData =
+                  sortsSnapshot.data?.docs.first.data()
+                      as Map<String, dynamic>?;
+              final Random rand = Random();
+              final name = personnage.get('name');
+              final specialisation = personnage.get('specialisation');
+              var ultime = personnage.get('ultime').toDouble() ?? 00;
+              final stats = personnage.get('stats');
+              var energy = personnage.get('energy');
+              var level = personnage.get('level');
+              var money = personnage.get('money');
+              var percent = personnage.get('percent').toDouble() ?? 0.0;
+              var points = personnage.get('points');
 
               return StreamBuilder<DocumentSnapshot>(
                   stream: widget._monsterStream,
@@ -240,8 +182,8 @@ class _MonsterFightState extends State<MonsterFight>
                           SizedBox(
                             height: MediaQuery.of(context).size.height,
                             width: MediaQuery.of(context).size.width,
-                            child: Image.network(
-                              "https://www.eddy-weber.fr/donjon.png",
+                            child: Image.asset(
+                              "assets/images/donjon.png",
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -375,49 +317,92 @@ class _MonsterFightState extends State<MonsterFight>
                                           })),
                                 const SizedBox(height: 50),
                                 // Affiche les sorts
-                                Column(children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: sortWidgets.sublist(0, 2),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      if (ultime >= 1) {
-                                        _attackBoss(
-                                          energy: energy,
-                                          ultime: ultime,
-                                          percent: percent,
-                                          attack: stats['attaque'],
-                                          level: level,
-                                          money: money,
-                                          points: points,
-                                          chance: stats['chance'],
-                                          personnage: personnage,
-                                          critique: true,
-                                          degats: null,
-                                        );
-                                      }
-                                    },
-                                    child: CircularPercentIndicator(
-                                      backgroundColor: Colors.black,
-                                      radius: 30.0,
-                                      lineWidth: 30.0,
-                                      percent: ultime,
-                                      center: Image.network(
-                                        'https://www.eddy-weber.fr/$specialisation.png',
-                                        fit: BoxFit.contain,
-                                        width: 50,
-                                        height: 50,
-                                      ),
-                                      progressColor: _colorSPr(
-                                          specialisation: specialisation),
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: sortWidgets.sublist(2, 4),
-                                  ),
-                                ]),
+                                (widget.dead == false && widget.life >= 1)
+                                    ? Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                if (ultime >= 1) {
+                                                  _attackBoss(
+                                                    energy: energy,
+                                                    ultime: ultime,
+                                                    percent: percent,
+                                                    attack: stats['attaque'] + sortData?['degats'] + rand.nextInt(stats[sortData?['element']] + 1),
+                                                    level: level,
+                                                    money: money,
+                                                    points: points,
+                                                    chance: stats['chance'],
+                                                    personnage: personnage,
+                                                    critique: true,
+                                                    degats: null,
+                                                  );
+                                                }
+                                              },
+                                              child: CircularPercentIndicator(
+                                                backgroundColor: Colors.black,
+                                                radius: 30.0,
+                                                lineWidth: 30.0,
+                                                percent: ultime,
+                                                center: Image.asset(
+                                                  'assets/images/$specialisation.png',
+                                                  fit: BoxFit.contain,
+                                                  width: 50,
+                                                  height: 50,
+                                                ),
+                                                progressColor: _colorSPr(
+                                                    specialisation:
+                                                        specialisation),
+                                              ),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                _attackBoss(
+                                                  energy: energy,
+                                                  ultime: ultime,
+                                                  percent: percent,
+                                                  attack: stats['attaque'] + sortData?['degats'] + rand.nextInt(stats[sortData!['element']] + 1),
+                                                  level: level,
+                                                  money: money,
+                                                  points: points,
+                                                  chance: stats['chance'],
+                                                  personnage: personnage,
+                                                  critique: false,
+                                                  degats: null,
+                                                );
+                                              },
+                                              child: SizedBox(
+                                                height: 50,
+                                                width: MediaQuery.of(context).size.width / 2,
+                                                child: Card(
+                                                  shadowColor: _colorSorts(element: sortData!['element']),
+                                                  elevation: 3,
+                                                  color: Colors.black,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                    side: BorderSide(
+                                                      color: _colorSPr(specialisation: specialisation),
+                                                      width: 2,
+                                                    ),
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      sortData['nom'] ?? "Inconnu",
+                                                      style: const TextStyle(
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: 16,
+                                                          color: Colors.white70
+                                                      ),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ])
+                                    : const SizedBox(),
                                 const SizedBox(height: 50),
                                 (widget.dead == false && widget.life >= 1)
                                     ? ElevatedButton.icon(
@@ -465,6 +450,23 @@ class _MonsterFightState extends State<MonsterFight>
                                               .collection('User')
                                               .doc(personnage.id)
                                               .update({'money': money});
+                                          if (widget.nbrUser == 0) {
+                                            FirebaseFirestore.instance
+                                                .collection('Monsters')
+                                                .doc(widget._docId)
+                                                .update({
+                                              'bloque': true,
+                                              'nbrUser': widget.nbrUser - 1
+                                            });
+                                          } else {
+                                            FirebaseFirestore.instance
+                                                .collection('Monsters')
+                                                .doc(widget._docId)
+                                                .update({
+                                              'bloque': true,
+                                              'nbrUser': widget.nbrUser - 1
+                                            });
+                                          }
 
                                           Navigator.pop(context);
                                         },
@@ -505,9 +507,9 @@ class _MonsterFightState extends State<MonsterFight>
                       ),
                     );
                   });
-            },
-          );
-        });
+            });
+      },
+    );
   }
 
   AppBar _buildAppBar(String specialisation, int energy, int level,
@@ -567,8 +569,8 @@ class _MonsterFightState extends State<MonsterFight>
                 },
               ));
             },
-            child: Image.network(
-              'https://www.eddy-weber.fr/$specialisation.png',
+            child: Image.asset(
+              'assets/images/$specialisation.png',
               fit: BoxFit.cover,
               width: 45,
               height: 45,
@@ -614,9 +616,10 @@ class _MonsterFightState extends State<MonsterFight>
     ultime = (ultime < 0.99) ? ultime + 0.01 : 1;
     if (ultime == 1 && critique) {
       ultime = 0;
+    } else{
+      energy--;
     }
 
-    energy--;
     money = money + attack;
     if (percent >= 0.99) {
       percent = 0;
@@ -673,18 +676,17 @@ class _MonsterFightState extends State<MonsterFight>
     }
   }
 
-  /// Permet de déterminer quel state est appelé.
   dynamic _colorSPr({required String specialisation}) {
     Object colorSp = {
-      "archer": Colors.green.withOpacity(0.2),
-      "sorcier": Colors.blue.withOpacity(0.2),
-      "guerrier": Colors.red.withOpacity(0.2),
-    }.putIfAbsent(specialisation, () => Colors.black);
+      "archer": const Color(0xFF0b1f16),
+      "sorcier": const Color(0xFF213759),
+      "guerrier": const Color(0xFF560404),
+    }.putIfAbsent(specialisation, () => const Color(0xFF3e2518));
     return colorSp;
   }
 
   /// Permet de déterminer quel state est appelé.
-  dynamic _colorSorts({required String type}) {
+  dynamic _colorSorts({required String element}) {
     Object colorSp = {
       "feu": Colors.red,
       "eau": Colors.blue,
@@ -692,7 +694,7 @@ class _MonsterFightState extends State<MonsterFight>
       "tenebre": Colors.purple,
       "air": Colors.white,
       "lumiere": Colors.yellow,
-    }.putIfAbsent(type, () => Colors.grey);
+    }.putIfAbsent(element, () => Colors.grey);
     return colorSp;
   }
 }

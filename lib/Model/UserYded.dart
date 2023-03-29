@@ -10,6 +10,7 @@ class UserYded {
   final int _points;
   final int _ultime;
   final String _role;
+  final String _element;
 
   UserYded({
     required String email,
@@ -21,6 +22,7 @@ class UserYded {
     required int money,
     required int percent,
     required int points,
+    required String element,
     required int ultime,
     required String role,
   })  : _email = email,
@@ -33,6 +35,7 @@ class UserYded {
         _percent = percent,
         _points = points,
         _ultime = ultime,
+        _element = element,
         _role = role;
 
   String get email => _email;
@@ -41,6 +44,7 @@ class UserYded {
   Map<String, int> get stats => _stats;
   String get specialisation => _specialisation;
   int get level => _level;
+  String get element => _element;
   int get money => _money;
   int get percent => _percent;
   int get points => _points;
@@ -62,6 +66,7 @@ class UserYded {
       'points': points,
       'ultime': ultime,
       'role': role,
+      'element': element,
     };
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:yded/Game/combat.dart';
 import 'package:yded/Game/profil.dart';
+import 'package:yded/Game/upload_image_page.dart';
 import 'package:yded/Game/pvp.dart';
 import 'package:yded/Profil/update_profil.dart';
 import 'boutique.dart';
@@ -94,7 +95,8 @@ class _AccueilState extends State<Accueil> {
           var percent = personnage.get('percent').toDouble();
 
           return Scaffold(
-              backgroundColor: Colors.black45,
+              backgroundColor: Colors.transparent,
+              extendBody: true,
               appBar: _buildAppBar(
                   specialisation, energy, level, percent, money.toDouble(), name),
               body: Center(
@@ -161,8 +163,8 @@ class _AccueilState extends State<Accueil> {
                 },
               ));
             },
-            child: Image.network(
-                'https://www.eddy-weber.fr/$specialisation.png',
+            child: Image.asset(
+                'assets/images/$specialisation.png',
                 fit: BoxFit.cover,width: 45,height: 45,)),
       ),
     );
@@ -215,10 +217,10 @@ class _AccueilState extends State<Accueil> {
 
   dynamic _colorSPr({required String specialisation}) {
     Object colorSp = {
-      "archer": Colors.green.withOpacity(0.2),
-      "sorcier": Colors.blue.withOpacity(0.2),
-      "guerrier": Colors.red.withOpacity(0.2),
-    }.putIfAbsent(specialisation, () => Colors.black87);
+      "archer": const Color(0xFF0b1f16),
+      "sorcier": const Color(0xFF213759),
+      "guerrier": const Color(0xFF560404),
+    }.putIfAbsent(specialisation, () => const Color(0xFF3e2518));
     return colorSp;
   }
 

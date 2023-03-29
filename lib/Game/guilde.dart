@@ -47,7 +47,14 @@ class _GuildeState extends State<Guilde> {
           }
 
           final documents = snapshot.data!.docs;
-          return GridView.builder(
+          return Stack( children : [             SizedBox(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: Image.asset(
+              "assets/images/taverne.png",
+              fit: BoxFit.cover,
+            ),
+          ),GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               mainAxisSpacing: 8.0,
@@ -163,12 +170,12 @@ class _GuildeState extends State<Guilde> {
                   );
                 },
                 child: Card(
-                  color: Colors.black,
+                  color: _colorSPr(specialisation: specialisation),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.network(
-                        "https://www.eddy-weber.fr/$specialisation.png",fit: BoxFit.cover,width: 60,height: 60,
+                      Image.asset(
+                        "assets/images/$specialisation.png",fit: BoxFit.cover,width: 60,height: 60,
                       ),
                       const SizedBox(height: 8.0),
                       Text(name,
@@ -180,7 +187,7 @@ class _GuildeState extends State<Guilde> {
                 ),
               );
             },
-          );
+          )]);
         });
   }
 
@@ -344,6 +351,16 @@ class _GuildeState extends State<Guilde> {
         ));
       },
     );
+  }
+
+
+  dynamic _colorSPr({required String specialisation}) {
+    Object colorSp = {
+      "archer": const Color(0xFF0b1f16),
+      "sorcier": const Color(0xFF213759),
+      "guerrier": const Color(0xFF560404),
+    }.putIfAbsent(specialisation, () => const Color(0xFF3e2518));
+    return colorSp;
   }
 
 // Helper functions

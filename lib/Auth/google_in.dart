@@ -62,6 +62,7 @@ class GoogleTest {
                 percent: 0,
                 points: 0,
                 ultime: 0,
+                element: "terre",
                 role: _playerRole).toMap());
 
         FirebaseFirestore.instance
@@ -70,50 +71,8 @@ class GoogleTest {
             .collection('Sorts')
             .add({
           'nom': 'Coup de poing',
-          'type': 'air',
+          'element': 'terre',
           'degats': 1,
-          'position': 1,
-          'acquis': true,
-          'level': 1,
-        });
-
-        FirebaseFirestore.instance
-            .collection('User')
-            .doc(currentUser?.uid)
-            .collection('Sorts')
-            .add({
-          'nom': 'Lance caillou',
-          'type': 'terre',
-          'degats': 5,
-          'position': 2,
-          'acquis': true,
-          'level': 1,
-        });
-
-        FirebaseFirestore.instance
-            .collection('User')
-            .doc(currentUser?.uid)
-            .collection('Sorts')
-            .add({
-          'nom': 'Rage',
-          'type': 'feu',
-          'degats': 3,
-          'position': 3,
-          'acquis': true,
-          'level': 1,
-        });
-
-        FirebaseFirestore.instance
-            .collection('User')
-            .doc(currentUser?.uid)
-            .collection('Sorts')
-            .add({
-          'nom': "Jet d'eau",
-          'type': 'eau',
-          'degats': 4,
-          'position': 4,
-          'acquis': true,
-          'level': 1,
         });
         navigatorKey.currentState!.popUntil((route) => route.isFirst);
       }

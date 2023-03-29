@@ -52,6 +52,14 @@ class _CombatState extends State<Combat> {
             );
           }
           return Stack(children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: Image.asset(
+                "assets/images/tour.png",
+                fit: BoxFit.cover,
+              ),
+            ),
             ListView(
                 children: snapshot.data!.docs.map((DocumentSnapshot document) {
               Map<String, dynamic> monstre =
@@ -79,7 +87,7 @@ class _CombatState extends State<Combat> {
                   child: Card(
                     margin: const EdgeInsets.all(10),
                     color: (monstre['dead'] == false && monstre['bloque'] == false)
-                        ? Colors.black
+                        ? Colors.black.withOpacity(0.8)
                         : Colors.black.withOpacity(0.5),
                     shadowColor:
                         (monstre['dead'] == false) ? Colors.green : Colors.red,
