@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:yded/Game/combat.dart';
 import 'package:yded/Game/profil.dart';
-import 'package:yded/Game/upload_image_page.dart';
 import 'package:yded/Game/pvp.dart';
 import 'package:yded/Profil/update_profil.dart';
 import 'boutique.dart';

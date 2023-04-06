@@ -199,7 +199,7 @@ class _CombatState extends State<Combat> {
             }).toList()),
             (userRole == "admin")
                 ? Positioned(
-                    bottom: MediaQuery.of(context).size.height / 35,
+                    bottom: MediaQuery.of(context).size.height / 15,
                     right: MediaQuery.of(context).size.width / 2.5,
                     child: ElevatedButton(
                         onPressed: () {

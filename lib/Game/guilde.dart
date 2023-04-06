@@ -27,7 +27,6 @@ class _GuildeState extends State<Guilde> {
     if (userData != null) {
       userRole = userData['role'];
     }
-    print(userRole);
   }
 
   @override
@@ -81,8 +80,8 @@ class _GuildeState extends State<Guilde> {
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Image.network(
-                              "https://www.eddy-weber.fr/$specialisation.png",
+                            Image.asset(
+                              "assets/images/$specialisation.png",
                               height: 100,width: 100,
                               fit: BoxFit.contain,
                             ),
@@ -335,7 +334,8 @@ class _GuildeState extends State<Guilde> {
                     'terre': int.parse(terreController.text),
                     'air': int.parse(airController.text),
                     'lumière': int.parse(lumiereController.text),
-                    'ténébre': int.parse(tenebreController.text)
+                    'ténébre': int.parse(tenebreController.text),
+                    'energy': 0
                   },
                   'energy': int.parse(energyController.text),
                   'name': nameController.text,

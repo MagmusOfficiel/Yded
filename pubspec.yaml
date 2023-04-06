@@ -43,6 +43,10 @@ dependencies:
   firebase_auth: ^4.2.6
   email_validator: ^2.1.17
   percent_indicator: ^4.2.2
+  image_picker: ^0.8.7
+  firebase_storage: ^11.0.16
+  firebase_app_check: ^0.1.1+14
+  io: ^1.0.4
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +73,20 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
      - assets/mon_icon.png
+     - assets/images/pvp.png
+     - assets/images/pvpenter.png
+     - assets/images/boutique.png
+     - assets/images/forge.png
+     - assets/images/taverne.png
+     - assets/images/tour.png
+     - assets/images/Ydde.gif
+     - assets/images/YddeF.gif
+     - assets/images/sorcier.png
+     - assets/images/aventurier.png
+     - assets/images/archer.png
+     - assets/images/guerrier.png
+     - assets/images/donjon.png
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

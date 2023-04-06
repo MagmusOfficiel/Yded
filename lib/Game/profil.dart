@@ -256,8 +256,8 @@ class _ProfilState extends State<Profil> {
                                                               "Guerrier"),
                                                           const SizedBox(
                                                               height: 8),
-                                                          Image.network(
-                                                            'https://www.eddy-weber.fr/guerrier.png',
+                                                          Image.asset(
+                                                            'assets/images/$specialisation.png',
                                                             fit: BoxFit.contain,
                                                             width: 50,
                                                             height: 50,

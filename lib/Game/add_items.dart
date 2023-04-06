@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:yded/Service/firebase_storage_service.dart';
+import 'dart:io';
 
 class AddItem extends StatefulWidget {
   @override
@@ -8,7 +11,7 @@ class AddItem extends StatefulWidget {
 
 class _AddItemState extends State<AddItem> {
   final _textControllers =
-      List<TextEditingController>.generate(12, (_) => TextEditingController());
+  List<TextEditingController>.generate(12, (_) => TextEditingController());
   final _textInputTypes = [
     TextInputType.text,
     TextInputType.number,
@@ -41,9 +44,12 @@ class _AddItemState extends State<AddItem> {
 
   String? _selectedCategory;
   String? _selectedType;
+  File? _image;
+  final _firebaseStorageService = FirebaseStorageService();
 
   @override
   Widget build(BuildContext context) {
+    print(FirebaseAuth.instance.currentUser);
     return Scaffold(
       appBar: AppBar(title: const Text('Ajouter un item')),
       body: SingleChildScrollView(
@@ -67,23 +73,49 @@ class _AddItemState extends State<AddItem> {
   }
 
   Widget _buildTextField(int index) {
-    return ListTile(
-      shape: RoundedRectangleBorder(
+    if (index == 10) {
+      return ListTile(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),
-          side: const BorderSide(color: Colors.white30, width: 1.5)),
-      title: Row(
-        children: [
-          Text('${_fieldLabels[index]}: '),
-          Expanded(
-            child: TextField(
-              keyboardType: _textInputTypes[index],
-              decoration: const InputDecoration(border: InputBorder.none),
-              controller: _textControllers[index],
+          side: const BorderSide(color: Colors.white30, width: 1.5),
+        ),
+        title: Row(
+          children: [
+            Text('${_fieldLabels[index]}: '),
+            Expanded(
+              child: TextField(
+                keyboardType: _textInputTypes[index],
+                decoration: const InputDecoration(border: InputBorder.none),
+                controller: _textControllers[index],
+                readOnly: true,
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+            IconButton(
+              icon: Icon(Icons.file_upload),
+              onPressed: _pickAndUploadImage,
+            ),
+          ],
+        ),
+      );
+    } else {
+      return ListTile(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+            side: const BorderSide(color: Colors.white30, width: 1.5)),
+        title: Row(
+          children: [
+            Text('${_fieldLabels[index]}: '),
+            Expanded(
+              child: TextField(
+                keyboardType: _textInputTypes[index],
+                decoration: const InputDecoration(border: InputBorder.none),
+                controller: _textControllers[index],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Widget _buildDropdownMenu() {
@@ -94,8 +126,8 @@ class _AddItemState extends State<AddItem> {
       items: <String>['Unique', 'Stuff']
           .map<DropdownMenuItem<String>>(
             (String value) =>
-                DropdownMenuItem<String>(value: value, child: Text(value)),
-          )
+            DropdownMenuItem<String>(value: value, child: Text(value)),
+      )
           .toList(),
     );
   }
@@ -125,10 +157,23 @@ class _AddItemState extends State<AddItem> {
       ]
           .map<DropdownMenuItem<String>>(
             (String value) =>
-                DropdownMenuItem<String>(value: value, child: Text(value)),
-          )
+            DropdownMenuItem<String>(value: value, child: Text(value)),
+      )
           .toList(),
     );
+  }
+
+  Future<void> _pickAndUploadImage() async {
+    File? image = await _firebaseStorageService.pickImage();
+    if (image != null) {
+      setState(() {
+        _image = image;
+      });
+      String imagePath = 'images/${DateTime.now().toString()}.png';
+      String imageUrl = await _firebaseStorageService.uploadImage(
+          _image!, imagePath);
+      _textControllers[10].text = imageUrl;
+    }
   }
 
   void _addItem() {

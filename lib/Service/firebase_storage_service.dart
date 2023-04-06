@@ -3,31 +3,30 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
 class FirebaseStorageService {
-  final _picker = ImagePicker();
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  Future<String?> uploadImageToFirebaseStorage(File file) async {
-    // Sélectionnez une image à partir de la galerie du téléphone
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  // Méthode pour choisir l'image à partir de la galerie
+  Future<File?> pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
-    if (pickedFile == null) {
+    if (image != null) {
+      return File(image.path);
+    } else {
+      print('Aucune image sélectionnée');
       return null;
     }
+  }
 
-    final File file = File(pickedFile.path);
-
-    // Définissez l'emplacement où vous souhaitez stocker l'image dans Firebase Storage
-    final Reference ref = FirebaseStorage.instance.ref().child('images/${file.path.split('/').last}');
-
-    // Envoyez l'image dans Firebase Storage
-    final UploadTask uploadTask = ref.putFile(file);
-
-    // Attendez la fin de l'envoi
-    await uploadTask.whenComplete(() => null);
-
-    // Récupérez l'URL de téléchargement de l'image
-    final String downloadUrl = await ref.getDownloadURL();
-
-    // Retournez l'URL de téléchargement de l'image
-    return downloadUrl;
+  // Méthode pour uploader l'image sur Firebase Storage
+  Future<String> uploadImage(File imageFile, String imagePath) async {
+    try {
+      await _storage.ref(imagePath).putFile(imageFile);
+      String downloadUrl = await _storage.ref(imagePath).getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print(e);
+      return '';
+    }
   }
 }

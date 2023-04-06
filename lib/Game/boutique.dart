@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'add_items.dart';
 
 class Boutique extends StatefulWidget {
@@ -16,6 +15,7 @@ class _BoutiqueState extends State<Boutique> {
   late User? user;
   late String userId;
   late Map<String, dynamic> userData = {};
+  late String userRole = '';
 
   @override
   void initState() {
@@ -27,11 +27,14 @@ class _BoutiqueState extends State<Boutique> {
   }
 
   Future<void> getData() async {
-    final docRef = FirebaseFirestore.instance.collection('User').doc(userId);
+    final docRef = FirebaseFirestore.instance.collection('User').doc(user?.uid);
     final docSnapshot = await docRef.get();
-    setState(() {
-      userData = docSnapshot.data()!;
-    });
+    final userData = docSnapshot.data();
+    if (userData != null) {
+      setState(() {
+        userRole = userData['role'];
+      });
+    }
   }
 
   Future<void> addToInventory(String itemName) async {
@@ -134,7 +137,10 @@ class _BoutiqueState extends State<Boutique> {
                                         content: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Image.network(data['poster'],fit: BoxFit.contain,),
+                                            Image.network(
+                                              data['poster'],
+                                              fit: BoxFit.contain,
+                                            ),
                                             const SizedBox(height: 8),
                                             Row(
                                               mainAxisAlignment:
@@ -289,6 +295,20 @@ class _BoutiqueState extends State<Boutique> {
                   : const SizedBox(),
               (stuffList.isNotEmpty)
                   ? Column(children: [
+                (userRole == 'admin')
+                    ? ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) {
+                            return AddItem();
+                          },
+                          fullscreenDialog: true));
+                    },
+                    style: const ButtonStyle(
+                        backgroundColor:
+                        MaterialStatePropertyAll(Colors.white)),
+                    child: const Icon(Icons.add, color: Colors.black))
+                    : const SizedBox(),
                       const SizedBox(height: 8),
                       const Text(
                         "Equipements",
@@ -321,7 +341,7 @@ class _BoutiqueState extends State<Boutique> {
                                     builder: (context) {
                                       return AlertDialog(
                                         actions: [
-                                          (userData['role'] == 'admin')
+                                          (userRole == 'admin')
                                               ? ElevatedButton(
                                                   onPressed: () {
                                                     FirebaseFirestore.instance
@@ -497,20 +517,6 @@ class _BoutiqueState extends State<Boutique> {
                               ),
                             );
                           }),
-                      (userData['role'] == 'admin')
-                          ? ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                      return AddItem();
-                                    },
-                                    fullscreenDialog: true));
-                              },
-                              style: const ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStatePropertyAll(Colors.white)),
-                              child: const Icon(Icons.add, color: Colors.black))
-                          : const SizedBox()
                     ])
                   : const SizedBox()
             ]))
